@@ -1,5 +1,4 @@
 from django.db import models
-<<<<<<< HEAD
 from django.core.exceptions import ValidationError
 # Create your models here.
 
@@ -32,22 +31,10 @@ class Field(models.Model):
     
 
 # Crop
-=======
-
-# Create your models here.
-class Farmer(models.Model):
-    username = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)
-    date_joined = models.DateTimeField(auto_now_add=True)
-
-
->>>>>>> 66c747f6f9c3008ff4545aafa686c6b6b59e93c8
 class Crop(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     category = models.CharField(max_length=50)  # e.g., vegetable, grain
-<<<<<<< HEAD
     fields = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="crops")
     date_added = models.DateTimeField(auto_now_add=True)
     
@@ -59,18 +46,10 @@ class Crop(models.Model):
 class PlantingCalendar(models.Model):
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name="calendar_entries", null=True, blank=True)
     field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="calendar_entries", null=True, blank=True)
-=======
-    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name="crops")
-    date_added = models.DateTimeField(auto_now_add=True)
-
-class PlantingCalendar(models.Model):
-    crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name="calendar_entries")
->>>>>>> 66c747f6f9c3008ff4545aafa686c6b6b59e93c8
     planting_date = models.DateField()
     harvest_date = models.DateField()
     notes = models.TextField(blank=True)
 
-<<<<<<< HEAD
 
     def __str__(self):
         target = self.crop.name if self.crop else self.field.name
@@ -79,32 +58,22 @@ class PlantingCalendar(models.Model):
 
 # Weather   
 class Weather(models.Model):
-    field = models.ForeignKey(Field, on_delete=models.SET_NULL, null=True, blank=True)  # optional
-=======
-class Weather(models.Model):
-    crop = models.ForeignKey(Crop, on_delete=models.SET_NULL, null=True, blank=True)  # optional
->>>>>>> 66c747f6f9c3008ff4545aafa686c6b6b59e93c8
+    field = models.ForeignKey(Field, on_delete=models.SET_NULL, null=True, blank=True)    
     location = models.CharField(max_length=100)
     date = models.DateField()
     temperature = models.FloatField()
     humidity = models.FloatField()
     rainfall = models.FloatField()
 
-<<<<<<< HEAD
     def __str__(self):
         return f"Weather on {self.date} ({self.field.name})"
     
 # Route Safety
 class RouteSafety(models.Model):
-=======
-class RouteSafety(models.Model):
-    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name="routes")
->>>>>>> 66c747f6f9c3008ff4545aafa686c6b6b59e93c8
     route_name = models.CharField(max_length=100)
     start_point = models.CharField(max_length=100)
     end_point = models.CharField(max_length=100)
     is_safe = models.BooleanField(default=True)
-<<<<<<< HEAD
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -116,9 +85,5 @@ class Language(models.Model):
     
     def __str__(self):
         return self.name
-=======
 
-class Language(models.Model):
-    name = models.CharField(max_length=30, unique=False)
     
->>>>>>> 66c747f6f9c3008ff4545aafa686c6b6b59e93c8
