@@ -1,0 +1,58 @@
+/* static/css/style.css */
+
+/* Body tweaks */
+body {
+    line-height: 1.6;
+}
+
+/* Header hover effect */
+header a:hover {
+    text-decoration: underline;
+}
+
+/* Table styling for list views */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.table th, .table td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.table th {
+    background-color: #10B981; /* Tailwind green-500 */
+    color: white;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    background-color: #10B981; /* Tailwind green-500 */
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: #059669; /* Tailwind green-600 */
+}
+
+/* Cards for dashboard items */
+.card {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+/* Footer link hover */
+footer a:hover {
+    text-decoration: underline;
+}

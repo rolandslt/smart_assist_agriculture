@@ -1,8 +1,11 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from datetime import date
 # Create your models here.
 
+#------------------------
 # Farmer and User
+#------------------------
 class Farmer(models.Model):
     username = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -17,8 +20,9 @@ class Farmer(models.Model):
     def __str__(self):
         return self.username
     
-
+#-------------------------------
 # Field (farm plot)
+#-------------------------------
 class Field(models.Model):
     farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name="fields")
     name = models.CharField(max_length=100)
@@ -29,20 +33,35 @@ class Field(models.Model):
     def __str__(self):
         return f"{self.name} ({self.farmer.username})"
     
-
+#-------------------
 # Crop
+#-------------------
 class Crop(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     category = models.CharField(max_length=50)  # e.g., vegetable, grain
     fields = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="crops")
-    date_added = models.DateTimeField(auto_now_add=True)
     
+    STATUS_CHOICES= [
+        ('p', 'Planted'),           # Crop has been planted
+        ('g', 'Growing'),           # Crop is still growing
+        ('r', 'Ready for harvest'), # Crop is ready to be harvested
+        ('h', 'Harvested'),         # Crop has been harvested
+    ]
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        blank=True,
+        default='p')
+    
+    planted_on = models.DateField(default=date.today)
+    expected_harvest = models.DateField(null=True, blank=True)
     def __str__(self):
-        return self.name
+        return  f"{self.name} ({self.status})"
 
-
+#-------------------------
 # Planting Calendar
+#-------------------------
 class PlantingCalendar(models.Model):
     crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name="calendar_entries", null=True, blank=True)
     field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="calendar_entries", null=True, blank=True)
@@ -55,8 +74,9 @@ class PlantingCalendar(models.Model):
         target = self.crop.name if self.crop else self.field.name
         return f"Planting: {target} ({self.planting_date})"
     
-
-# Weather   
+#----------------------
+# Weather  Record
+#-----------------------
 class Weather(models.Model):
     field = models.ForeignKey(Field, on_delete=models.SET_NULL, null=True, blank=True)    
     location = models.CharField(max_length=100)
@@ -67,8 +87,9 @@ class Weather(models.Model):
 
     def __str__(self):
         return f"Weather on {self.date} ({self.field.name})"
-    
+#------------------------
 # Route Safety
+#------------------------
 class RouteSafety(models.Model):
     route_name = models.CharField(max_length=100)
     start_point = models.CharField(max_length=100)
@@ -78,8 +99,10 @@ class RouteSafety(models.Model):
 
     def __str__(self):
         return f"{self.route_name} - {'Safe' if self.is_safe else 'Unsafe'}"
-    
+
+#---------------------
 # Language    
+#---------------------
 class Language(models.Model):
     name = models.CharField(max_length=30)
     
