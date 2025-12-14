@@ -2,6 +2,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from datetime import date
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+
 # Create your models here.
 
 #------------------------
@@ -25,6 +27,7 @@ class Farmer(AbstractUser):
         blank=True,
         null=True,
     )
+    
 
     def clean(self):
         super().clean()
@@ -66,70 +69,146 @@ class Crop(models.Model):
     fields = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="crops")
     
     STATUS_CHOICES= [
-        ('p', 'Planted'),           # Crop has been planted
-        ('g', 'Growing'),           # Crop is still growing
-        ('r', 'Ready for harvest'), # Crop is ready to be harvested
-        ('h', 'Harvested'),         # Crop has been harvested
+        ('planted', 'Planted'),           # Crop has been planted
+        ('growing', 'Growing'),           # Crop is still growing
+        ('ready ', 'Ready for harvest'), # Crop is ready to be harvested
+        ('harvested', 'Harvested'),         # Crop has been harvested
     ]
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         blank=True,
-        default='p')
+        default='planted')
     
     planted_on = models.DateField(default=date.today)
     expected_harvest = models.DateField(null=True, blank=True)
     def __str__(self):
-        return  f"{self.name} ({self.status})"
+        return  f"{self.name} in {self.fields.name} ({self.status})"
+    
+    class Meta:
+        ordering = ['-planted_on']
 
 #-------------------------
 # Planting Calendar
 #-------------------------
-class PlantingCalendar(models.Model):
-    crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name="calendar_entries", null=True, blank=True)
-    field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="calendar_entries", null=True, blank=True)
-    planting_date = models.DateField()
-    harvest_date = models.DateField()
-    notes = models.TextField(blank=True)
+class Activity(models.Model):
+    """
+    Represents a scheduled or completed farming activity/task (Planting, Fertilizing, etc.).
+    """
+    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name='activities', 
+                               help_text=("The farmer/user who scheduled this activity."))
+    crop = models.ForeignKey('Crop', on_delete=models.SET_NULL, related_name="activities", 
+                             null=True, blank=True) 
+    field = models.ForeignKey('Field', on_delete=models.CASCADE, related_name="activities", 
+                              null=True, blank=True) 
 
+    title = models.CharField(max_length=255, 
+                             help_text=("e.g., Planting, Fertilizing, Scouting, Harvesting"))
+    description = models.TextField(blank=True, help_text=("Detailed notes on the task."))
+    
+    # Scheduled date for ANY task
+    scheduled_date = models.DateField(help_text=("The date the activity is scheduled or completed."))
+    
+    # Optional field, useful if the activity is a planting task
+    estimated_harvest_date = models.DateField(null=True, blank=True) 
+    
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('canceled', 'Canceled'),
+    ]
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='scheduled'
+    )
 
     def __str__(self):
-        target = self.crop.name if self.crop else self.field.name
-        return f"Planting: {target} ({self.planting_date})"
-    
+        return f"{self.title}: {self.field.name if self.field else 'N/A'} ({self.scheduled_date})"
+
+    class Meta:
+        verbose_name = ("Scheduled Activity")
+        verbose_name_plural = ("Scheduled Activities")
+        ordering = ['scheduled_date']
 #----------------------
 # Weather  Record
 #-----------------------
-class Weather(models.Model):
-    field = models.ForeignKey(Field, on_delete=models.SET_NULL, null=True, blank=True)    
-    location = models.CharField(max_length=100)
-    date = models.DateField()
-    temperature = models.FloatField()
-    humidity = models.FloatField()
-    rainfall = models.FloatField()
+class WeatherRecord(models.Model): 
+    """
+    Stores historical or manually input weather data linked to a field.
+    """
+    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name='weather_records',
+                              help_text=("The farmer who owns this weather record."))
+    
+    field = models.ForeignKey('Field', on_delete=models.SET_NULL, related_name='weather_records',
+                              null=True, blank=True) 
+    
+    recorded_at = models.DateTimeField(default=timezone.now, 
+                                       help_text=("Date and time the reading was taken.")) 
+    
+    location = models.CharField(max_length=100, blank=True, 
+                                help_text=("City or specific GPS reference."))
+    
+    temperature = models.FloatField(help_text=("Temperature in °C."))
+    
+    humidity = models.FloatField(help_text=("Humidity percentage (0-100)."))
+    
+    rainfall = models.FloatField(help_text=("Rainfall/precipitation in millimeters."))
+    
+    wind_speed = models.FloatField(null=True, blank=True)
+    
+    source = models.CharField(max_length=50, default="manual", 
+                              help_text=("Data source (e.g., manual, API, sensor)."))
 
     def __str__(self):
-        return f"Weather on {self.date} ({self.field.name})"
+        return f"Weather for {self.field.name if self.field else 'N/A'} at {self.recorded_at.date()}"
+
+    class Meta:
+        verbose_name = ("Weather Record")
+        verbose_name_plural = ("Weather Records")
+        ordering = ['-recorded_at']
+        unique_together = ('field', 'recorded_at')
 #------------------------
 # Route Safety
 #------------------------
-class RouteSafety(models.Model):
-    route_name = models.CharField(max_length=100)
-    start_point = models.CharField(max_length=100)
-    end_point = models.CharField(max_length=100)
-    is_safe = models.BooleanField(default=True)
+class SecureRoute(models.Model): 
+    """
+    Stores a defined route path and associated security data for transport safety.
+    """
+    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name='secure_routes',
+                              help_text=("The user who created or last updated this route."))
+    
+    route_name = models.CharField(max_length=100, help_text=("A descriptive name for the route (e.g., 'Farm to Goma Market')."))
+    
+    
+    route_path_geojson = models.TextField(
+        help_text=("The geographical data (GeoJSON) defining the route path for map display.")
+    )
+    
+    SECURITY_LEVELS = [
+        ('green', 'Safe (Low Risk)'),
+        ('yellow', 'Caution (Medium Risk)'),
+        ('red', 'Unsafe (High Risk / Blocked)')
+    ]
+    security_status = models.CharField(
+        max_length=10,
+        choices=SECURITY_LEVELS,
+        default='yellow', 
+        help_text=("The assessed security level for the route.")
+    )
+    
+    risk_notes = models.TextField(blank=True, 
+                                  help_text=("Details on security threats or blockages."))
+    
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.route_name} - {'Safe' if self.is_safe else 'Unsafe'}"
-
-#---------------------
-# Language    
-#---------------------
-class Language(models.Model):
-    name = models.CharField(max_length=30)
-    
-    def __str__(self):
-        return self.name
+        return f"{self.route_name} - {self.get_security_status_display()}"
+        
+    class Meta:
+        verbose_name = ("Secure Transport Route")
+        verbose_name_plural = ("Secure Transport Routes")
+        ordering = ['-last_updated']
 
     

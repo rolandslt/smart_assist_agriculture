@@ -1,0 +1,74 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Weather Detail" %}: {{ weather_record.recorded_at|date:"Y-m-d H:i" }}{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg">
+                    
+                    {# --- Card Header --- #}
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">{% translate "Weather Conditions Recorded" %}</h4>
+                    </div>
+                    
+                    <div class="card-body">
+                        
+                        <h5 class="mb-3">{% translate "Time and Location" %}</h5>
+                        <dl class="row mb-4 border-bottom pb-3">
+                            <dt class="col-sm-4 text-muted">{% translate "Recorded At" %}</dt>
+                            <dd class="col-sm-8"><strong>{{ weather_record.recorded_at|date:"F j, Y, H:i" }}</strong></dd>
+
+                            <dt class="col-sm-4 text-muted">{% translate "Field/Area" %}</dt>
+                            <dd class="col-sm-8">
+                                {% if weather_record.field %}
+                                    <a href="{% url 'field_detail' weather_record.field.pk %}">{{ weather_record.field.name }}</a>
+                                {% else %}
+                                    {{ weather_record.location }}
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-sm-4 text-muted">{% translate "Source" %}</dt>
+                            <dd class="col-sm-8">{{ weather_record.source|default_if_none:"Manual Entry" }}</dd>
+                        </dl>
+
+                        <h5 class="mb-3">{% translate "Measured Data" %}</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4 text-muted">{% translate "Temperature" %}</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-warning text-dark fs-5">{{ weather_record.temperature|default_if_none:"N/A" }} °C</span>
+                            </dd>
+
+                            <dt class="col-sm-4 text-muted">{% translate "Humidity" %}</dt>
+                            <dd class="col-sm-8">{{ weather_record.humidity|default_if_none:"N/A" }} %</dd>
+
+                            <dt class="col-sm-4 text-muted">{% translate "Rainfall" %}</dt>
+                            <dd class="col-sm-8">{{ weather_record.rainfall|default_if_none:"0.0" }} mm</dd>
+                            
+                            <dt class="col-sm-4 text-muted">{% translate "Wind Speed" %}</dt>
+                            <dd class="col-sm-8">{{ weather_record.wind_speed|default_if_none:"N/A" }} km/h</dd>
+                        </dl>
+                        
+                    </div>
+                    
+                    {# --- Card Footer (Actions) --- #}
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{% url 'weather_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> {% translate "Back to List" %}
+                        </a>
+                        <div>
+                            <a href="{% url 'weather_update' weather_record.pk %}" class="btn btn-warning me-2">
+                                <i class="fas fa-edit"></i> {% translate "Edit Record" %}
+                            </a>
+                            <a href="{% url 'weather_delete' weather_record.pk %}" class="btn btn-danger">
+                                <i class="fas fa-trash-alt"></i> {% translate "Delete" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

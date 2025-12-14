@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% load static %}
+    {% load static i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Smart Agriculture{% endblock %}</title>
@@ -28,7 +28,22 @@
             </div>
 
             <div class="flex items-center space-x-4">
-            
+                <form action="{% url 'set_language' %}" method="post" class="inline-block">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}"> 
+                    <select name="language" onchange="this.form.submit()" 
+                        class="p-1 border border-gray-300 rounded-md text-sm bg-white focus:ring-green-500 focus:border-green-500">
+                        
+                        {% get_current_language as CURRENT_LANGUAGE %}
+                        {% get_available_languages as LANGUAGES %}
+
+                        {% for lang_code, lang_name in LANGUAGES %}
+                            <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                                {{ lang_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
                 <button class="text-gray-600 hover:text-green-700 text-lg">
                     <i class="fas fa-search"></i>
                 </button>

@@ -37,12 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
     'agri_app.apps.AgriAppConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -78,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'agri_db', # my localhost database
         'USER': 'agri_user', # owner for now
-        'PASSWORD': '16rol@46',
+        'PASSWORD': '46@rol12',
         'HOST': 'localhost',
          'PORT': '5432',
     }
@@ -109,6 +111,19 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+LANGUAGES =[
+    ('en', 'English'),
+    ('fr', 'French'),
+    ('sw', 'Swahili',)
+]
+
+LOCAL_PATHS =[
+    BASE_DIR / 'local'
+]
+
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
 TIME_ZONE = 'UTC'
 
 USE_I18N = True

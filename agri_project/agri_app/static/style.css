@@ -79,3 +79,10 @@ z-index: 1000;
     background-color: #f1f1f1;
     color: #dc2626; /* Tailwind 'red-600' */
 }
+
+.menu-item {
+    @apply flex items-center p-3 text-sm text-gray-700 hover:bg-gray-100 transition duration-100;
+    }
+.logout-form-button {
+    @apply w-full text-left menu-item border-t border-gray-200; /* Apply menu-item style, then override for logout */
+}

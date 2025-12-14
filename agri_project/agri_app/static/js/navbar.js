@@ -1,13 +1,11 @@
-
-
 document.addEventListener('DOMContentLoaded', function() {
     const icon = document.getElementById('profile-icon-trigger');
     const menu = document.getElementById('profile-dropdown-menu');
 
     if (icon && menu) {
         icon.addEventListener('click', function(event) {
-            event.stopPropagation(); // Prevents immediate close from document click listener
-            // Tailwind way to toggle visibility is using 'hidden'
+            event.stopPropagation(); // Prevents the document click listener from firing immediately
+            // Toggle visibility using the Tailwind 'hidden' class
             menu.classList.toggle('hidden');
         });
         

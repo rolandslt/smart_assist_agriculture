@@ -1,0 +1,106 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Crop Details: {{ crop.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
+        <h1 class="text-3xl font-extrabold text-gray-900">
+            Crop Details: <span class="text-green-600">{{ crop.name }}</span>
+        </h1>
+        <div class="flex space-x-3">
+            <a href="{% url 'crop_update' crop.pk %}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-150">
+                Edit Crop
+            </a>
+            <a href="{% url 'crop_delete' crop.pk %}" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-150">
+                Delete Crop
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Crop Information
+            </h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                Details about this planted crop.
+            </p>
+        </div>
+        <div class="border-t border-gray-200">
+            <dl class="divide-y divide-gray-200">
+                
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Field Location
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <a href="{% url 'field_detail' crop.fields.pk %}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                            {{ crop.fields.name }}
+                        </a>
+                    </dd>
+                </div>
+                
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Crop Category
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {{ crop.category|default:"N/A" }}
+                    </dd>
+                </div>
+                
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Current Status
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {% with status_code=crop.status %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if status_code == 'h' %}bg-blue-100 text-blue-800{% elif status_code == 'r' %}bg-green-100 text-green-800{% elif status_code == 'g' %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ crop.get_status_display }}
+                        </span>
+                        {% endwith %}
+                    </dd>
+                </div>
+                
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Planted Date
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {{ crop.planted_on|date:"F d, Y" }}
+                    </dd>
+                </div>
+                
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Expected Harvest
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {{ crop.expected_harvest|date:"F d, Y"|default:"TBD" }}
+                    </dd>
+                </div>
+
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Notes/Description
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 whitespace-pre-line">
+                        {{ crop.description|default:"No notes provided." }}
+                    </dd>
+                </div>
+                
+            </dl>
+        </div>
+    </div>
+    
+    <div class="mt-8">
+        <a href="{% url 'crop_list' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            &larr; Back to All Crops
+        </a>
+    </div>
+
+</div>
+{% endblock content %}

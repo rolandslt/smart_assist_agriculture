@@ -1,0 +1,63 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "My Farmer Profile" %}{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg">
+                    
+                    {# --- Card Header --- #}
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">{% translate "Account & Farm Profile" %}</h4>
+                        <a href="{% url 'farmer_update' %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> {% translate "Edit Profile" %}
+                        </a>
+                    </div>
+                    
+                    <div class="card-body">
+                        
+                        {# --- 1. Primary Account Info --- #}
+                        <h5 class="mb-3 border-bottom pb-2">{% translate "Login Details" %}</h5>
+                        <dl class="row mb-4">
+                            <dt class="col-sm-4 text-muted">{% translate "Username" %}</dt>
+                            <dd class="col-sm-8"><strong>{{ farmer_profile.user.username }}</strong></dd>
+
+                            <dt class="col-sm-4 text-muted">{% translate "Email" %}</dt>
+                            <dd class="col-sm-8">{{ farmer_profile.user.email }}</dd>
+                            
+                            <dt class="col-sm-4 text-muted">{% translate "Full Name" %}</dt>
+                            <dd class="col-sm-8">{{ farmer_profile.user.first_name }} {{ farmer_profile.user.last_name }}</dd>
+                        </dl>
+
+                        {# --- 2. Custom Farmer Profile Data --- #}
+                        <h5 class="mb-3 border-bottom pb-2">{% translate "Farm & Contact Information" %}</h5>
+                        <dl class="row mb-4">
+                            <dt class="col-sm-4 text-muted">{% translate "Primary Contact" %}</dt>
+                            <dd class="col-sm-8">{{ farmer_profile.phone_number|default:"N/A" }}</dd>
+
+                            <dt class="col-sm-4 text-muted">{% translate "Address" %}</dt>
+                            <dd class="col-sm-8">{{ farmer_profile.address|default:"N/A" }}</dd>
+                            
+                            <dt class="col-sm-4 text-muted">{% translate "Farm Location (GPS)" %}</dt>
+                            <dd class="col-sm-8">{{ farmer_profile.farm_location|default:"N/A" }}</dd>
+                            
+                            <dt class="col-sm-4 text-muted">{% translate "Soil Type" %}</dt>
+                            <dd class="col-sm-8">{{ farmer_profile.soil_type|default:"Not specified" }}</dd>
+                        </dl>
+                        
+                    </div>
+                    
+                    {# --- Footer Actions --- #}
+                    <div class="card-footer text-end">
+                        <a href="{% url 'farmer_update' %}" class="btn btn-primary">
+                            {% translate "Edit Profile Details" %} <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

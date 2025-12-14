@@ -1,0 +1,74 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Activity Planning Calendar" %}{% endblock %}
+
+{% block content %}
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>{% translate "Farming Activities" %}</h2>
+            <a href="{% url 'activity_create' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> {% translate "Schedule New Activity" %}
+            </a>
+        </div>
+
+        {# --- Activity Status Filters --- #}
+        <div class="mb-4">
+            <nav class="nav nav-pills nav-fill">
+                <a class="nav-link {% if not current_status or current_status == 'all' %}active{% endif %}" 
+                   href="{% url 'activity_list' %}">{% translate "All Tasks" %}</a>
+                
+                {% for status_code, status_label in status_choices %}
+                    <a class="nav-link {% if current_status == status_code %}active{% endif %}" 
+                       href="{% url 'activity_list' %}?status={{ status_code }}">
+                        {{ status_label }}
+                    </a>
+                {% endfor %}
+            </nav>
+        </div>
+
+        {# --- Activity List Table --- #}
+        {% if activities %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Date" %}</th>
+                            <th>{% translate "Title / Task" %}</th>
+                            <th>{% translate "Field" %}</th>
+                            <th>{% translate "Crop" %}</th>
+                            <th>{% translate "Status" %}</th>
+                            <th>{% translate "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in activities %}
+                            <tr>
+                                <td>{{ activity.scheduled_date|date:"Y-m-d" }}</td>
+                                <td>
+                                    <a href="{% url 'activity_detail' activity.pk %}">
+                                        <strong>{{ activity.title }}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ activity.field.name|default:"N/A" }}</td>
+                                <td>{{ activity.crop.name|default:"General Task" }}</td>
+                                <td><span class="badge bg-{{ activity.status|lower }}">{{ activity.get_status_display }}</span></td>
+                                <td>
+                                    <a href="{% url 'activity_update' activity.pk %}" class="btn btn-sm btn-outline-primary">
+                                        {% translate "Edit" %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-5" role="alert">
+                {% translate "You have no activities scheduled for this filter. Time to plan some work!" %}
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock content %}

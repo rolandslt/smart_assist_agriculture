@@ -1,0 +1,67 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Weather Records History" %}{% endblock %}
+
+{% block content %}
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h2>{% translate "Weather Monitoring Data" %}</h2>
+            <a href="{% url 'weather_create' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> {% translate "Add Manual Record" %}
+            </a>
+        </div>
+
+        {% if weather_records %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Date & Time" %}</th>
+                            <th>{% translate "Location / Field" %}</th>
+                            <th>{% translate "Source" %}</th>
+                            <th>{% translate "Temp (°C)" %}</th>
+                            <th>{% translate "Rainfall (mm)" %}</th>
+                            <th>{% translate "Humidity (%)" %}</th>
+                            <th>{% translate "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in weather_records %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'weather_detail' record.pk %}">
+                                        <strong>{{ record.recorded_at|date:"Y-m-d H:i" }}</strong>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if record.field %}
+                                        {{ record.field.name }}
+                                    {% else %}
+                                        {{ record.location }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ record.source|default_if_none:"Sensor/Manual" }}</td>
+                                <td>{{ record.temperature|default_if_none:"N/A" }}</td>
+                                <td>{{ record.rainfall|default_if_none:"0.0" }}</td>
+                                <td>{{ record.humidity|default_if_none:"N/A" }}</td>
+                                <td>
+                                    <a href="{% url 'weather_update' record.pk %}" class="btn btn-sm btn-outline-primary">
+                                        {% translate "Edit" %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-5 text-center p-4" role="alert">
+                <p class="lead mb-0">{% translate "No weather records found for your farm." %}</p>
+                <p class="mb-0">{% translate "Add a record manually or connect a weather source." %}</p>
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock content %}

@@ -5,13 +5,14 @@ urlpatterns = [
     # Home page
     path('',views.index, name='home'),
 
-    # Farmer urls
-    path('farmer/',views.FarmerListView.as_view(), name='farmer_list'),
-    path('farmer/<int:pk>', views.FarmerDetailView.as_view(), name='farmer_detail'),
-
     # Crop urls
-    path('crop/', views.CropListView.as_view(), name='crop_list'),
-    path('crop/<int:pk>', views.CropDetailView.as_view(), name='crop_detail'),
+    path('crops/', views.CropListView.as_view(), name='crop_list'),
+    path('crops/<int:pk>', views.CropDetailView.as_view(), name='crop_detail'),
+    path('crops/<int:pk>', views.CropDetailView.as_view(), name='crop_detail'),
+    path('crops/add/', views.CropCreateView.as_view(), name='crop_create'),
+    path('crops/<int:pk>/edit', views.CropUpdateView.as_view(), name='crop_update'),
+    path('crops/<int:pk>/delete/', views.CropDeleteView.as_view(), name='crop_delete'),
+
 
     # Field urls
     path('fields/', views.FieldListView.as_view(), name='field_list'),
@@ -23,22 +24,33 @@ urlpatterns = [
 
 
     # Planting Calendar urls
-    path('PlantingCalendar/', views.PlantingCalendarListView.as_view(), name='calendar_list'),
-    path('crop/<int:pk>', views.PlantingCalendarDetailView.as_view(), name='planting_calendar_detail'),
-    
-    # Weather Record urls
-    path('weather,', views.WeatherListView.as_view(), name='weather_list'),
-    path('weather/<int:pk>', views.WeatherDetailView.as_view(), name='weather_detail'),
+    path('activities/', views.ActivityListView.as_view(), name='activity_list'),
+    path('activities/<int:pk>', views.ActivityDetailView.as_view(), name='activity_detail'),
+    path('activities/add/', views.ActivityCreateView.as_view(), name='activity_create'),
+    path('activities/<int:pk>/edit', views.ActivityUpdateView.as_view(), name='activity_update'),
+    path('activities/<int:pk>/delete/', views.ActivityDeleteView.as_view(), name='activity_delete'),
 
+    # Weather Record urls
+    path('weathers/', views.WeatherRecordListView.as_view(), name='weather_list'),
+    path('weathers/<int:pk>', views.WeatherRecordDetailView.as_view(), name='weather_detail'),
+    path('weathers/add/', views.ActivityCreateView.as_view(), name='weather_create'),
+    path('weathers/<int:pk>/edit', views.WeatherRecordUpdateView.as_view(), name='weather_update'),
+    path('weathers/<int:pk>/delete/', views.WeatherRecordDeleteView.as_view(), name='weather_delete'),
 
 
     # Route Safety urls
-    path('RouteSafety/', views.RouteSafetyListView.as_view(), name='route_safety'),
-    path('RouteSafety/<int:pk>', views.RouteSafetyDetailView.as_view(), name='route_safety_detail'),
+    path('routes/', views.SecureRouteListView.as_view(), name='secure_route_list'),
+    path('routes/<int:pk>', views.SecureRouteDetailView.as_view(), name='secure_route_detail'),
+    path('routes/add/', views.SecureRouteCreateView.as_view(), name='secure_route_create'),
+    path('routes/<int:pk>/edit', views.SecureRouteUpdateView.as_view(), name='secure_route_update'),
+    path('routes/<int:pk>/delete/', views.SecureRouteDeleteView.as_view(), name='secure_route_delete'),
 
     # Registration, Login, Logout Views
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/profile/',views.ProfileDetail.as_view(template_name='accounts/profile.html'),name='profile'),
     path("registration/", views.SignUpView.as_view(), name='sign_up'),
+    # Farmer urls
+    path('profiles/', views.FarmerProfileView.as_view(), name='farmer_profile'),
+    path('profiles/update/', views.FarmerUpdateView.as_view(), name='farmer_update'),
 ]
 

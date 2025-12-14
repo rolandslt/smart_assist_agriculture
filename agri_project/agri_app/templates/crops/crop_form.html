@@ -1,0 +1,49 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{% if form.instance.pk %}Edit Crop{% else %}Add New Crop{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8 border-t-4 border-green-600">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+        {% if form.instance.pk %}Edit Crop: {{ form.instance.name }}{% else %}Add New Crop{% endif %}
+    </h1>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    {{ field.label }}
+                </label>
+                
+                {% if field.widget_type == 'select' or field.widget_type == 'textarea' %}
+                    {{ field.as_widget }}
+                {% else %}
+                    {{ field.as_widget }}
+                {% endif %}
+                
+                {% if field.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ field.errors }}</p>
+                {% endif %}
+                {% if field.help_text %}
+                    <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="pt-4 border-t border-gray-200 flex justify-end">
+            <a href="{% url 'crop_list' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md mr-3">Cancel</a>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+                {% if form.instance.pk %}Save Changes{% else %}Add Crop{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock content %}

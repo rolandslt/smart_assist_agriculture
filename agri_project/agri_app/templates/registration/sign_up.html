@@ -1,20 +1,62 @@
-{% extends 'base_generic.html' %}
-{% block title %}Register as a farmer{% endblock %} 
+{% extends "base_generic.html" %}
+
+{% block title %}Register Your Farm Account{% endblock %} 
 
 {% block content %}
 
-<div class="card-container">
-    <div class="card-hearder">
-        <h1>Register Your Farm Account</h1>
-    </div>
+<div class="max-w-lg mx-auto mt-12 p-8 bg-white shadow-2xl rounded-xl border-t-4 border-green-600">
 
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %} 
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Sign Up</button>
-        </form>
+    <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Register Your Farm Account</h1>
+    
+    {% if form.non_field_errors %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+        <strong class="font-bold">Error:</strong>
+        {% for error in form.non_field_errors %}
+            <p class="mt-1 text-sm">{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %} 
+        
+        {% for field in form %}
+            <div class="field-container">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    {{ field.label }}
+                </label>
+
+                {% if field.widget_type == 'checkbox' %}
+                    {{ field }}
+                {% else %}
+                    <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                           name="{{ field.name }}" 
+                           id="{{ field.id_for_label }}" 
+                           value="{{ field.value|default:'' }}" 
+                           {% if field.field.required %}required{% endif %}
+                           class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm p-3 focus:ring-green-500 focus:border-green-500">
+                {% endif %}
+                
+                {% if field.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ field.errors }}</p>
+                {% endif %}
+                
+                {% if field.help_text %}
+                    <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="pt-4">
+            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-150 shadow-md">
+                Create Farm Account
+            </button>
         </div>
-    </div>
+        
+        <div class="text-center text-sm mt-4">
+            Already have an account? <a href="{% url 'login' %}" class="text-blue-500 hover:text-blue-700 font-medium">Log In</a>
+        </div>
+    </form>
+</div>
 
-{% endblock %}
+{% endblock content %}

@@ -1,25 +1,36 @@
 from django.contrib import admin
-from .models import Farmer, Field, Weather, Crop, PlantingCalendar, RouteSafety, Language
-# Register your models here.
+from django.utils.translation import gettext_lazy as _
+from .models import Farmer, Crop, Field, Activity, WeatherRecord, SecureRoute
 
-#--------------------------
+
+# --------------------------
 # Custom actions
-#--------------------------
+# --------------------------
+# Action for Farmer/Field (Is Active)
 def mark_active(modeladmin, request, queryset):
     queryset.update(is_active=True)
-mark_active.short_description = "Mark selected as active"
+mark_active.short_description = _("Mark selected as active")
 
+# Action for Crop (Harvested) - Status must match your Crop model's status field.
 def mark_harvested(modeladmin, request, queryset):
-    queryset.update(status='harvested')
-mark_harvested.short_description = "Mark selected crops as harvested "
+    # Assuming 'harvested' is a valid status choice in your Crop model
+    queryset.update(status='harvested') 
+mark_harvested.short_description = _("Mark selected crops as harvested")
+
+# Action for Activity (Completed)
+def mark_completed(modeladmin, request, queryset):
+    # 'completed' is a valid status from the Activity model's choices
+    queryset.update(status='completed')
+mark_completed.short_description = _("Mark selected activities as completed")
+
 
 #--------------------------
-# Farmer Admin
+# Farmer Admin (No change needed)
 #--------------------------
 @admin.register(Farmer)
-class FArmerAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'phone_number', 'date_joined')
-    search_fields = ('username', 'email', 'phone_number',)
+class FarmerAdmin(admin.ModelAdmin):
+    list_display = ('farm_name', 'email', 'phone_number', 'date_joined')
+    search_fields = ('farm_name', 'email', 'phone_number',)
     list_filter = ('date_joined',)
     actions = [mark_active]
     actions_on_top = True
@@ -28,7 +39,7 @@ class FArmerAdmin(admin.ModelAdmin):
 
 
 # -----------------------
-# Crop Admin
+# Crop Admin (Using the existing mark_harvested action)
 # -----------------------
 @admin.register(Crop)
 class CropAdmin(admin.ModelAdmin):
@@ -41,12 +52,13 @@ class CropAdmin(admin.ModelAdmin):
     
 
 # -----------------------
-# Field Admin
+# Field Admin (No change needed)
 # -----------------------
 @admin.register(Field)
 class FieldAdmin(admin.ModelAdmin):
+    # Added 'farmer' to list_display for better context
     list_display = ('name','farmer', 'location', 'size_in_hectares','soil_type')
-    search_fields = ('name', 'location', 'soil_type', 'farmer',)
+    search_fields = ('name', 'location', 'soil_type', 'farmer',) # Use __username for FK lookup
     actions = [mark_active]
     list_filter = ('soil_type',)
     actions_on_top = True
@@ -55,38 +67,44 @@ class FieldAdmin(admin.ModelAdmin):
 
 
 # -----------------------
-# Weather Record Admin
+# Activity Admin (New Name: PlantingCalendar -> Activity)
 # -----------------------
-@admin.register(Weather)
-class WEatherAdmin(admin.ModelAdmin):
-    list_display = ('date', 'location', 'temperature', 'humidity', 'rainfall', 'get_field')
-    search_fields = ('location', 'date', 'temperature', 'humidity',)
+@admin.register(Activity)
+class ActivityAdmin(admin.ModelAdmin):
+    # Updated fields: added farmer, status, used scheduled_date, estimated_harvest_date
+    list_display = ('title', 'farmer', 'field', 'scheduled_date', 'status', 'estimated_harvest_date')
+    search_fields = ('title', 'crop', 'field')
+    list_filter = ('status', 'scheduled_date')
+    date_hierarchy = 'scheduled_date' # Changed from planting_date
+    actions = [mark_completed] # New action for marking activity as done
+    list_select_related = ['farmer', 'field', 'crop'] # Optimize for FK lookups
+
+
+# -----------------------
+# Weather Record Admin (New Name: Weather -> WeatherRecord)
+# -----------------------
+@admin.register(WeatherRecord)
+class WeatherRecordAdmin(admin.ModelAdmin):
+    # Updated fields: added 'owner', renamed 'date' to 'recorded_at'
+    list_display = ('farmer', 'recorded_at', 'location', 'temperature', 'humidity', 'rainfall', 'get_field')
+    search_fields = ('location', 'recorded_at', 'temperature', 'humidity', 'farmer')
 
     def get_field(self, obj):
+        # The relationship is now to 'field' as defined in the model
         return obj.field.name if obj.field else '-'
     get_field.short_description = 'Field'
 
-    
-# -----------------------
-# Planting Calendar Admin
-# -----------------------
-@admin.register(PlantingCalendar)
-class PlantingCalendarAdmin(admin.ModelAdmin):
-    list_display = ('crop', 'field', 'planting_date', 'harvest_date')
-    search_fields = ('crop',)
-    list_filter = ('planting_date',)
-    date_hierarchy = 'planting_date'
 
 # -----------------------
-# Route Safety Admin
+# Secure Route Admin (New Name: RouteSafety -> SecureRoute)
 # -----------------------
-@admin.register(RouteSafety)
-class RouteSafetyAdmin(admin.ModelAdmin):
-    list_display = ('route_name' , 'start_point', 'end_point', 'is_safe')
-    search_fields = ('is_safe',)
-    list_filter = ('is_safe',)
+@admin.register(SecureRoute)
+class SecureRouteAdmin(admin.ModelAdmin):
+    # Updated fields: added 'owner', using 'security_status', removed 'start_point'/'end_point'
+    list_display = ('route_name' , 'farmer', 'security_status', 'last_updated')
+    search_fields = ('route_name', 'risk_notes', 'farmer')
+    list_filter = ('security_status',) # Filtering by status is more informative than by safety boolean
+    # The map data (route_path_geojson) is too large to display here
 
-# -----------------------
-# Register  Language with  Admin
-# -----------------------
-admin.site.register(Language)
+    list_select_related = ['farmer'] # Optimize for owner lookup
+

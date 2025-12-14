@@ -1,9 +1,59 @@
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+{% extends "base_generic.html" %}
 
-<form method="post" action="{% url 'login' %}">
-    {% csrf_token %} {{ form.as_p }}
+{% block title %}Login to Smart Agriculture{% endblock %}
 
-    <input type="submit" value="login" />
-</form>
+{% block content %}
+<div class="max-w-md mx-auto mt-12 p-8 bg-white shadow-xl rounded-lg border-t-4 border-green-600">
+
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Farmer Login</h2>
+
+    {% if form.errors %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <strong class="font-bold">Error:</strong>
+        <span class="block sm:inline">Your username and password didn't match. Please try again.</span>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="field-container">
+            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Username</label>
+            <input type="text" 
+                   name="{{ form.username.name }}" 
+                   id="{{ form.username.id_for_label }}" 
+                   required
+                   class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm p-3 focus:ring-green-500 focus:border-green-500"
+                   value="{{ form.username.value|default:'' }}">
+            {% if form.username.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.username.errors }}</p>
+            {% endif %}
+        </div>
+
+        <div class="field-container">
+            <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" 
+                   name="{{ form.password.name }}" 
+                   id="{{ form.password.id_for_label }}" 
+                   required
+                   class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm p-3 focus:ring-green-500 focus:border-green-500">
+            {% if form.password.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.password.errors }}</p>
+            {% endif %}
+        </div>
+
+        {{ form.non_field_errors }}
+        {% if next %}
+        <input type="hidden" name="next" value="{{ next }}" />
+        {% endif %}
+
+        <div class="pt-4">
+            <input type="submit" value="Log In" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-150 cursor-pointer">
+        </div>
+        
+        <div class="text-center">
+            <a href="{% url 'password_reset' %}" class="text-sm text-blue-500 hover:text-blue-700">Forgot password?</a>
+        </div>
+    </form>
+</div>
+{% endblock content %}

@@ -1,0 +1,58 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Secure Routes Dashboard" %}{% endblock %}
+
+{% block content %}
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h2>{% translate "Security & Logistics Routes" %}</h2>
+            <a href="{% url 'secure_route_create' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> {% translate "Add New Route" %}
+            </a>
+        </div>
+
+        {% if secure_routes %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>{% translate "Route Name" %}</th>
+                            <th>{% translate "Security Status" %}</th>
+                            <th>{% translate "Last Updated" %}</th>
+                            <th>{% translate "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for route in secure_routes %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'secure_route_detail' route.pk %}">
+                                        <strong>{{ route.route_name }}</strong>
+                                    </a>
+                                </td>
+                                <td>
+                                    {# Assuming status is set via STATUS_CHOICES in the model #}
+                                    <span class="badge bg-{{ route.security_status|lower }}">{{ route.get_security_status_display }}</span>
+                                </td>
+                                <td>{{ route.last_updated|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'secure_route_update' route.pk %}" class="btn btn-sm btn-outline-primary">
+                                        {% translate "Edit" %}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-5 text-center p-4" role="alert">
+                <p class="lead mb-0">{% translate "You have not defined any secure routes yet." %}</p>
+                <p class="mb-0">{% translate "Define your main transport and patrol routes to assess their security risks." %}</p>
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock content %}

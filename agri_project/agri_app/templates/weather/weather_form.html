@@ -1,0 +1,88 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block title %}
+    {% if object %}
+        {% translate "Edit Weather Record" %}
+    {% else %}
+        {% translate "Log New Weather Data" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7">
+                <div class="card shadow-lg">
+                    
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            {% if object %}
+                                {% translate "Update Record" %}
+                            {% else %}
+                                {% translate "New Weather Data Entry" %}
+                            {% endif %}
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-bold">
+                                        {{ field.label }}
+                                    </label>
+                                    
+                                    {% if field.field.widget.input_type == 'select' %}
+                                        {{ field|add_class:"form-select" }}
+                                    {% else %}
+                                        {# Use datetime-local for better timestamp input if available #}
+                                        {% if field.name == 'recorded_at' %}
+                                            <input type="datetime-local" name="{{ field.name }}" id="{{ field.id_for_label }}" 
+                                                   class="form-control" value="{{ field.value|date:'Y-m-d\TH:i'|default_if_none:'' }}">
+                                        {% else %}
+                                            {{ field|add_class:"form-control" }}
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    {% if field.help_text %}
+                                        <div class="form-text text-muted">{{ field.help_text }}</div>
+                                    {% endif %}
+                                    
+                                    {% for error in field.errors %}
+                                        <div class="alert alert-danger p-2 mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                            
+                            {# --- FORWARD and BACKWARD BUTTONS --- #}
+                            <div class="d-flex justify-content-between mt-4">
+                                
+                                {% if object %}
+                                    <a href="{% url 'weather_detail' object.pk %}" class="btn btn-secondary btn-lg">
+                                        <i class="fas fa-arrow-left"></i> {% translate "Cancel / Back" %}
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'weather_list' %}" class="btn btn-secondary btn-lg">
+                                        <i class="fas fa-arrow-left"></i> {% translate "Cancel / Back" %}
+                                    </a>
+                                {% endif %}
+
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    {% if object %}
+                                        {% translate "Save Changes" %} <i class="fas fa-check"></i>
+                                    {% else %}
+                                        {% translate "Save Record" %} <i class="fas fa-arrow-right"></i>
+                                    {% endif %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
