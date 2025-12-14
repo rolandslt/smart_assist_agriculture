@@ -1,0 +1,74 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Smart Agriculture: Data-Driven Farming{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <div class="text-center mb-16">
+        <h1 class="text-5xl font-extrabold text-gray-900 mb-4">
+            Welcome to <span class="text-green-600">Smart Agriculture</span>
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Leveraging technology to bring efficiency, sustainability, and data-driven insights to farming.
+        </p>
+        <p class="mt-4 text-lg text-green-700 font-medium">
+            Our mission is to empower farmers with tools like planting calendars, weather tracking, and field management systems to maximize yield and minimize resource use.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        
+        <div class="p-6 bg-white rounded-lg shadow-lg border-t-4 border-green-500">
+            <i class="fas fa-chart-line text-3xl text-green-600 mb-3"></i>
+            <h3 class="text-2xl font-semibold mb-2">Data-Driven Decisions</h3>
+            <p class="text-gray-600">Access real-time data on soil health, crop growth, and environmental factors to make informed choices.</p>
+        </div>
+
+        <div class="p-6 bg-white rounded-lg shadow-lg border-t-4 border-green-500">
+            <i class="fas fa-calendar-alt text-3xl text-green-600 mb-3"></i>
+            <h3 class="text-2xl font-semibold mb-2">Optimized Planting</h3>
+            <p class="text-gray-600">Utilize our custom planting calendar based on local climate and crop needs for optimal timing.</p>
+        </div>
+
+        <div class="p-6 bg-white rounded-lg shadow-lg border-t-4 border-green-500">
+            <i class="fas fa-cloud-sun-rain text-3xl text-green-600 mb-3"></i>
+            <h3 class="text-2xl font-semibold mb-2">Precision Forecasting</h3>
+            <p class="text-gray-600">Get accurate weather updates to plan irrigation and harvest schedules effectively.</p>
+        </div>
+
+    </div>
+
+    <div class="bg-gray-100 p-8 rounded-lg shadow-inner">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">What Our Users Say</h2>
+        
+        <blockquote class="mb-6 border-l-4 border-green-500 pl-4 italic text-gray-700">
+            "The Smart Agriculture platform has drastically improved my yield planning. The planning tools are a game-changer for efficiency!"
+            <footer class="mt-2 font-semibold text-sm">— John D., Local Farmer</footer>
+        </blockquote>
+        
+        <blockquote class="mb-8 border-l-4 border-green-500 pl-4 italic text-gray-700">
+            "Intuitive interface and crucial data—all in one place. It truly simplifies complex agronomic decisions."
+            <footer class="mt-2 font-semibold text-sm">— Sarah K., Agronomist Consultant</footer>
+        </blockquote>
+
+        <div class="mt-8 pt-6 border-t border-gray-300">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Share Your Experience</h3>
+            <form action="#" method="POST" class="space-y-4">
+                <div>
+                    <label for="your_name" class="block text-sm font-medium text-gray-700">Your Name</label>
+                    <input type="text" id="your_name" name="your_name" class="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="your_comment" class="block text-sm font-medium text-gray-700">Your Comment</label>
+                    <textarea id="your_comment" name="your_comment" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                </div>
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">
+                    Submit Review
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock content %}

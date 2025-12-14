@@ -1,42 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Smart Agriculture{% endblock %}</title>
     <!-- Tailwind CSS CDN for styling -->
-     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col">
 
     <!-- Header / Navbar -->
-    <header class="bg-green-600 text-white shadow-md">
-        <div class="container mx-auto flex justify-between items-center p-4">
-            <h1 class="text-xl font-bold">
-                <a href="{% url 'home' %}">Smart Agriculture</a>
-            </h1>
-            <nav class="space-x-4">
-                <a href="{% url 'farmer_list' %}" class="hover:text-gray-200">Farmers</a>
-                <a href="{% url 'field_list' %}" class="hover:text-gray-200">Fields</a>
-                <a href="{% url 'crop_list' %}" class="hover:text-gray-200">Crops</a>
-                <a href="{% url 'planting_calendar_list' %}" class="hover:text-gray-200">Planting Calendar</a>
-                <a href="{% url 'weather_list' %}" class="hover:text-gray-200">Weather</a>
-            </nav>
-        </div>
+    <header class="shadow-sm border-b border-gray-200">
+        <nav class="flex justify-between items-center max-w-7xl mx-auto p-4">
+        
+            <a href="{% url 'home' %}" class="text-2xl font-bold text-green-600 pr-8">
+            Smart Agriculture
+            </a>
+
+            <div class="flex space-x-6 flex-grow">
+                <a href="{% url 'home' %}" class="text-gray-600 hover:text-green-700 text-sm">Home</a>
+                <a href="#" class="text-gray-600 hover:text-green-700 text-sm">Marketplace</a>
+                <a href="#" class="text-gray-600 hover:text-green-700 text-sm">About Us</a>
+            </div>
+
+            <div class="flex items-center space-x-4">
+            
+                <button class="text-gray-600 hover:text-green-700 text-lg">
+                    <i class="fas fa-search"></i>
+                </button>
+
+                {% if user.is_authenticated %}
+                    <div class="user-menu-container relative">
+                        <div id="profile-icon-trigger" class="cursor-pointer">
+                            <i class="fas fa-user-circle text-3xl text-green-600 hover:text-green-700"></i>
+                        </div>
+
+                        <div id="profile-dropdown-menu" 
+                            class="profile-dropdown-menu absolute top-10 right-0 w-60 bg-white border border-gray-200 rounded-md shadow-lg hidden">
+                        
+                            <p class="font-bold p-3 text-sm border-b border-gray-200">Welcome, {{ user.username }}</p>
+                        
+                            <a href="{% url 'profile' %}" class="flex items-center p-3 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-seedling mr-3 text-gray-500"></i> Farm: {{ user.farm_name }}
+                            </a>
+                            <a href="{% url 'profile' %}" class="flex items-center p-3 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200">
+                                <i class="fas fa-id-card mr-3 text-gray-500"></i> View/Edit Profile
+                            </a>
+                            <a href="{% url 'field_list' %}" class="menu-item">
+                                <i class="fas fa-map-marked-alt"></i> Manage Fields
+                            </a>
+                            <form method="post" action="{% url 'logout' %}" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="logout-form-button text-red-600 hover:text-red-800">
+                                    <i class="fas fa-sign-out-alt mr-3"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-gray-600 hover:text-green-700 text-sm">Login</a>
+                    <a href="{% url 'sign_up' %}" class="bg-green-600 text-white py-2 px-4 rounded-md text-sm hover:bg-green-700">Sign Up</a>
+                {% endif %}
+            </div>
+        </nav>
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto p-4">
-        {% block content %}
-        <!-- Child templates will fill this block -->
-        {% endblock %}
-    </main>
+    <div class="content flex-grow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% block content %}
+                {% endblock content %}
+        </div>
+    </div>
 
     <!-- Footer -->
-    <footer class="bg-green-600 text-white mt-8 p-4 text-center">
-        &copy; {{ year }} Smart Agriculture. All rights reserved.
-    </footer>
-
+    {% include 'includes/_footer.html' %}
+<script src="{% static 'js/navbar.js' %}"></script>
 </body>
 </html>

@@ -1,24 +1,47 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from datetime import date
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
 #------------------------
 # Farmer and User
 #------------------------
-class Farmer(models.Model):
-    username = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20, null=True, blank=True)
-    password = models.CharField(max_length=128)
-    date_joined = models.DateTimeField(auto_now_add=True)
+class Farmer(AbstractUser):
+    email = models.EmailField(
+        'email address', # verbose name for the admin site
+        unique=True,     # <--- THIS IS THE CRUCIAL FIX
+    )
+    farm_name = models.CharField(
+        max_length=150,
+        unique=False,
+        )
+    phone_number = models.CharField(
+        max_length=20,
+        null=True, 
+        blank=True)
+    city_or_region = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
 
     def clean(self):
-        # Ensure at least one login method is provided
+        super().clean()
         if not self.email and not self.phone_number:
-            raise ValidationError("Farmer must have either an email or a phone number")
+            pass
+
+     # --- CRUCIAL CONFIGURATION ---
+    # The username field is required by AbstractUser. If you want to log in with email:
+    USERNAME_FIELD = 'email' 
+    REQUIRED_FIELDS = ['username'] # Ensure username is still prompted during superuser creation
+
+    class Meta:
+        verbose_name= 'Farmer'
+        verbose_name_plural='Farmers'
+
     def __str__(self):
-        return self.username
+        return self.username or self.email
     
 #-------------------------------
 # Field (farm plot)

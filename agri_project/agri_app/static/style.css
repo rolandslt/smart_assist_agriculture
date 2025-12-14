@@ -56,3 +56,26 @@ header a:hover {
 footer a:hover {
     text-decoration: underline;
 }
+
+
+.profile-dropdown-menu {
+            /* Ensures it sits relative to the icon and above other content */
+z-index: 1000;
+}
+
+        /* Styles the button inside the logout form to look like a menu link */
+.logout-form-button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px 15px;
+    color: #333;
+    font-size: 14px;
+}
+.logout-form-button:hover {
+    background-color: #f1f1f1;
+    color: #dc2626; /* Tailwind 'red-600' */
+}

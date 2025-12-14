@@ -1,0 +1,26 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg mt-12 text-center border-t-4 border-red-500">
+    <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Confirm Deletion</h1>
+    
+    <p class="text-lg text-gray-600 mb-6">Are you sure you want to permanently delete the field: 
+        <span class="font-semibold text-red-600">"{{ field.name }}"</span>?
+    </p>
+
+    <p class="text-sm text-gray-500 mb-8">This action cannot be undone and will affect related crops and records.</p>
+
+    <form method="post" class="flex justify-center space-x-4">
+        {% csrf_token %}
+        <a href="{% url 'field_detail' field.pk %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md">
+            Cancel
+        </a>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-150">
+            Yes, Delete Field
+        </button>
+    </form>
+</div>
+{% endblock content %}

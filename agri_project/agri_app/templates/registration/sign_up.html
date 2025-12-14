@@ -1,0 +1,20 @@
+{% extends 'base_generic.html' %}
+{% block title %}Register as a farmer{% endblock %} 
+
+{% block content %}
+
+<div class="card-container">
+    <div class="card-hearder">
+        <h1>Register Your Farm Account</h1>
+    </div>
+
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %} 
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+        </div>
+    </div>
+
+{% endblock %}

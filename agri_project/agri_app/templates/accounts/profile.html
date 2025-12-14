@@ -1,0 +1,43 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Farmer Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-6">
+    <h1 class="text-4xl font-extrabold text-gray-800 mb-8">
+        Welcome, {{ user.username }}
+    </h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-green-600">
+            <i class="fas fa-map-marked-alt text-4xl text-green-500 mb-4"></i>
+            <h2 class="text-xl font-bold mb-2">Manage My Fields</h2>
+            <p class="text-gray-600 mb-4">View, add, edit, or delete your farm plots and location details.</p>
+            <a href="{% url 'field_list' %}" class="text-green-600 hover:text-green-800 font-semibold flex items-center">
+                Go to Fields <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-blue-600">
+            <i class="fas fa-seedling text-4xl text-blue-500 mb-4"></i>
+            <h2 class="text-xl font-bold mb-2">Manage Crops</h2>
+            <p class="text-gray-600 mb-4">Track planting dates, health status, and harvest plans for all your crops.</p>
+            <a href="{% url 'crop_list' %}" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center">
+                Go to Crops <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-yellow-600">
+            <i class="fas fa-calendar-alt text-4xl text-yellow-500 mb-4"></i>
+            <h2 class="text-xl font-bold mb-2">Planning & Records</h2>
+            <p class="text-gray-600 mb-4">View your planting calendar and historical weather records for planning.</p>
+            <a href="{% url 'calendar_list' %}" class="text-yellow-600 hover:text-yellow-800 font-semibold flex items-center">
+                Go to Planner <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </a>
+        </div>
+
+    </div> 
+    
+    </div>
+{% endblock content %}
