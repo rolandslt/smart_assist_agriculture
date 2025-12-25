@@ -49,13 +49,14 @@ class FarmerProfileView(LoginRequiredMixin, TemplateView):
 class FarmerUpdateView(LoginRequiredMixin, UpdateView):
     model = Farmer
     template_name = 'profiles/farmer_form.html'
-    fields = fields = [
+    fields = [
         'first_name',
         'last_name',
         'email',
         'phone_number',
         'farm_name',
         'city_or_region',
+        
     ]
     success_url = reverse_lazy('farmer_profile')
     

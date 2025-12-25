@@ -1,6 +1,17 @@
 from django.urls import path, include
 from . import views  # import your app views
 from django.views.generic import TemplateView
+from rest_framework.routers import SimpleRouter 
+from .api_views import FarmerViewSet , FieldViewSet, CropViewSet, ActivityViewSet, WeatherRecordViewSet, SecureRouteViewSet
+
+router =  SimpleRouter()
+router.register(r'farmers', FarmerViewSet, basename='farmer'),
+router.register(r'fields', FieldViewSet, basename='field'),
+router.register(r'crops', CropViewSet, basename='crop'),
+router.register(r'activities', ActivityViewSet, basename='activity'),
+router.register(r'weather',WeatherRecordViewSet, basename='weather-record'),
+router.register(r'secure-routes', SecureRouteViewSet, basename='secure-route')
+
 urlpatterns = [
     # Home page
     path('',views.index, name='home'),
@@ -52,5 +63,9 @@ urlpatterns = [
     # Farmer urls
     path('profiles/', views.FarmerProfileView.as_view(), name='farmer_profile'),
     path('profiles/update/', views.FarmerUpdateView.as_view(), name='farmer_update'),
+
+    # API sections
+
+    path('api/', include(router.urls)),
 ]
 

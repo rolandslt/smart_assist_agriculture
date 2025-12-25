@@ -12,8 +12,8 @@ from django.utils import timezone
 class Farmer(AbstractUser):
     email = models.EmailField(
         'email address', # verbose name for the admin site
-        unique=True,     # <--- THIS IS THE CRUCIAL FIX
-    )
+        unique=True,        
+        )
     farm_name = models.CharField(
         max_length=150,
         unique=False,
@@ -97,9 +97,9 @@ class Activity(models.Model):
     """
     farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name='activities', 
                                help_text=("The farmer/user who scheduled this activity."))
-    crop = models.ForeignKey('Crop', on_delete=models.SET_NULL, related_name="activities", 
+    crop = models.ForeignKey(Crop, on_delete=models.SET_NULL, related_name="activities", 
                              null=True, blank=True) 
-    field = models.ForeignKey('Field', on_delete=models.CASCADE, related_name="activities", 
+    field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="activities", 
                               null=True, blank=True) 
 
     title = models.CharField(max_length=255, 
@@ -141,7 +141,7 @@ class WeatherRecord(models.Model):
     farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, related_name='weather_records',
                               help_text=("The farmer who owns this weather record."))
     
-    field = models.ForeignKey('Field', on_delete=models.SET_NULL, related_name='weather_records',
+    field = models.ForeignKey(Field, on_delete=models.SET_NULL, related_name='weather_records',
                               null=True, blank=True) 
     
     recorded_at = models.DateTimeField(default=timezone.now, 
