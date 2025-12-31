@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,9 +25,30 @@ SECRET_KEY = 'django-insecure-0#y10vn983cljzb75%6b-ez&r$avks^804wysjr*v2np6b0tk@
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
+# Browser-Side Protections
+#SECURE_BROWSER_XSS_FILTER = True      # Tells browser to stop page loading if XSS is detected
+#SECURE_CONTENT_TYPE_NOSNIFF = True    # Prevents browser from "guessing" file types (MIME sniffing)
+#X_FRAME_OPTIONS = 'DENY'              # Prevents your site from being put in an <iframe> (Clickjacking)
+
+# HTTPS-Only Cookies
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
+
+# 1. Enforce HTTPS Redirect
+#SECURE_SSL_REDIRECT = True
+
+     # 2. HTTP Strict Transport Security (HSTS)
+     # Start with a low value (3600) for testing, then increase to 31536000 (1 year)
+#SECURE_HSTS_SECONDS = 31536000 
+#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#SECURE_HSTS_PRELOAD = True
+
+     # 4. Proxy Header (If using Nginx/Load Balancer)
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -40,10 +62,13 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'agri_app.apps.AgriAppConfig',
     'rest_framework',
+    'rest_framework.authtoken',
+    'taggit',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    #'django.middleware.csp.ContentSecurityPolicyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -133,13 +158,39 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
+STATIC_URL = '/static/'
 
-STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+
 # REdirect to home URL after login (Default redirects to /accounts/profile/)
-LOGIN_REDIRECT_URL = "/accounts/profile"
+LOGIN_REDIRECT_URL = '/accounts/profile'
 LOGOUT_REDIRECT_URL = '/'
 
+# Where the files are stored on your computer
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+AUTHENTICATION_BACKENDS = [
+    'agri_app.backends.EmailOrUsernameBackend', # Your new smart logic
+    'django.contrib.auth.backends.ModelBackend',     # The default backup
+]
+
+PASSWORD_CHANGE_REDIRECT_URL = 'password_change_done'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 AUTH_USER_MODEL = "agri_app.Farmer"
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication', 
+        'rest_framework.authentication.SessionAuthentication', 
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated', 
+    ],
+}

@@ -1,50 +1,57 @@
-{% extends "base_generic.html" %}
+{{% extends "base_generic.html" %}
 {% load i18n %}
 
 {% block title %}{% translate "Confirm Route Deletion" %}{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card border-danger shadow-lg">
-                    
-                    <div class="card-header bg-danger text-white">
-                        <h4 class="mb-0">{% translate "Confirm Deletion" %}</h4>
-                    </div>
-                    
-                    <div class="card-body">
-                        <p class="lead">
-                            {% translate "Are you absolutely sure you want to delete the secure route:" %}
-                        </p>
-                        
-                        <blockquote class="blockquote border-start border-danger border-5 ps-3 py-2 bg-light rounded">
-                            <p class="mb-0">
-                                <strong>{{ secure_route.route_name }}</strong>
-                            </p>
-                            <footer class="blockquote-footer mt-1">
-                                {% translate "Status" %}: {{ secure_route.get_security_status_display }}
-                            </footer>
-                        </blockquote>
-                        
-                        <p class="text-danger">
-                            {% translate "This route data will be permanently lost." %}
-                        </p>
-                        
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="d-grid gap-2 mt-4">
-                                <button type="submit" class="btn btn-danger btn-lg">
-                                    <i class="fas fa-trash-alt"></i> {% translate "Yes, Delete Route" %}
-                                </button>
-                                <a href="{% url 'secure_route_detail' secure_route.pk %}" class="btn btn-secondary btn-lg">
-                                    {% translate "Cancel" %}
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+<div class="max-w-2xl mx-auto p-6">
+    {# --- Header Section --- #}
+    <div class="mb-8 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800">{% translate "Delete Secure Route?" %}</h1>
+        <p class="text-gray-500 mt-2">{% translate "This action cannot be undone." %}</p>
+    </div>
+
+    {# --- Confirmation Card --- #}
+    <div class="bg-white rounded-xl shadow-lg border border-red-100 overflow-hidden">
+        <div class="p-8">
+            <p class="text-gray-700 text-center mb-6">
+                {% translate "Are you absolutely sure you want to permanently remove this route?" %}
+            </p>
+
+            {# --- Route Preview --- #}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg">
+                <p class="text-sm font-bold text-red-700 uppercase tracking-wider mb-1">{% translate "Route to be deleted" %}</p>
+                <p class="text-xl font-bold text-gray-900">{{ secure_route.route_name }}</p>
+                <p class="text-sm text-red-600 mt-1">
+                    <span class="font-semibold">{% translate "Current Status" %}:</span> {{ secure_route.get_security_status_display }}
+                </p>
             </div>
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                
+                {# Delete Button #}
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-md shadow-md transition duration-150 flex items-center justify-center">
+                    <i class="fas fa-trash-alt mr-2"></i> {% translate "Yes, Delete Permanently" %}
+                </button>
+
+                {# Cancel Link #}
+                <a href="{% url 'secure_route_detail' secure_route.pk %}" class="w-full block text-center py-3 text-sm font-semibold text-gray-500 hover:text-gray-800 transition duration-150">
+                    {% translate "No, Keep This Route" %}
+                </a>
+            </form>
         </div>
     </div>
+
+    {# --- Security Note --- #}
+    <div class="mt-6 flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <i class="fas fa-info-circle text-gray-400 mt-1"></i>
+        <p class="text-xs text-gray-500 leading-relaxed">
+            {% translate "Deleting this route will remove all associated GeoJSON path data and risk notes from your dashboard. Other farmers sharing this access point might lose visibility of this security status." %}
+        </p>
+    </div>
+</div>
 {% endblock content %}

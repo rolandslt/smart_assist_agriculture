@@ -1,0 +1,80 @@
+{% extends "base_generic.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Activity Detail" %}: {{ activity.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+    {# --- Header Section --- #}
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">
+            {% translate "Activity Details" %}: <span class="text-green-600">{{ activity.title }}</span>
+        </h1>
+        <p class="text-gray-500 mt-2">{% translate "View complete information about this farming task." %}</p>
+    </div>
+
+    {# --- Detail Card --- #}
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="p-8">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                
+                {# Field Section #}
+                <div class="border-b border-gray-50 pb-4">
+                    <dt class="text-sm font-semibold text-gray-400 uppercase tracking-wider">{% translate "Assigned Field" %}</dt>
+                    <dd class="mt-1 text-lg font-medium text-gray-900">{{ activity.field }}</dd>
+                </div>
+
+                {# Status Section #}
+                <div class="border-b border-gray-50 pb-4">
+                    <dt class="text-sm font-semibold text-gray-400 uppercase tracking-wider">{% translate "Status" %}</dt>
+                    <dd class="mt-1">
+                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium 
+                            {% if activity.status == 'Completed' %} bg-green-100 text-green-800 
+                            {% elif activity.status == 'In Progress' %} bg-blue-100 text-blue-800
+                            {% else %} bg-yellow-100 text-yellow-800 {% endif %}">
+                            {{ activity.status }}
+                        </span>
+                    </dd>
+                </div>
+
+                {# Scheduled Date #}
+                <div class="border-b border-gray-50 pb-4">
+                    <dt class="text-sm font-semibold text-gray-400 uppercase tracking-wider">{% translate "Scheduled Date" %}</dt>
+                    <dd class="mt-1 text-gray-700 flex items-center">
+                        <i class="far fa-calendar-alt mr-2 text-green-600"></i>
+                        {{ activity.scheduled_date|date:"M d, Y" }}
+                    </dd>
+                </div>
+
+                {# Harvest Date #}
+                <div class="border-b border-gray-50 pb-4">
+                    <dt class="text-sm font-semibold text-gray-400 uppercase tracking-wider">{% translate "Estimated Harvest" %}</dt>
+                    <dd class="mt-1 text-gray-700 flex items-center">
+                        <i class="fas fa-seedling mr-2 text-green-600"></i>
+                        {{ activity.estimated_harvest_date|date:"M d, Y"|default:"---" }}
+                    </dd>
+                </div>
+            </dl>
+
+            {# --- Action Buttons (Footer) --- #}
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-10 pt-6 border-t border-gray-100">
+                
+                {# Backward Button #}
+                <a href="{% url 'activity_list' %}" class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-800 transition duration-150">
+                    <i class="fas fa-arrow-left mr-2"></i> {% translate "Back to Activity List" %}
+                </a>
+
+                {# Forward Buttons #}
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <a href="{% url 'activity_update' activity.pk %}" class="flex-1 sm:flex-none text-center bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded-md text-sm font-semibold hover:bg-gray-50 shadow-sm transition duration-150">
+                        <i class="fas fa-edit mr-2"></i> {% translate "Edit" %}
+                    </a>
+                    <a href="{% url 'activity_delete' activity.pk %}" class="flex-1 sm:flex-none text-center bg-red-50 text-red-600 px-5 py-2.5 rounded-md text-sm font-semibold hover:bg-red-100 transition duration-150">
+                        <i class="fas fa-trash-alt mr-2"></i> {% translate "Delete" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

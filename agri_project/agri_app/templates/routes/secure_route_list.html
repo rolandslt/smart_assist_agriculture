@@ -4,55 +4,75 @@
 {% block title %}{% translate "Secure Routes Dashboard" %}{% endblock %}
 
 {% block content %}
+    <div class="max-w-7xl mx-auto p-6">
+        {# --- Header --- #}
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">{% translate "Security & Logistics Routes" %}</h1>
 
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-            <h2>{% translate "Security & Logistics Routes" %}</h2>
-            <a href="{% url 'secure_route_create' %}" class="btn btn-success">
-                <i class="fas fa-plus-circle"></i> {% translate "Add New Route" %}
+            <a href="{% url 'secure_route_create' %}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 flex items-center">
+                <i class="fas fa-plus-circle mr-2"></i> {% translate "Add New Route" %}
             </a>
         </div>
 
+        {# --- Routes Grid --- #}
         {% if secure_routes %}
-            <div class="table-responsive">
-                <table class="table table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th>{% translate "Route Name" %}</th>
-                            <th>{% translate "Security Status" %}</th>
-                            <th>{% translate "Last Updated" %}</th>
-                            <th>{% translate "Actions" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for route in secure_routes %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'secure_route_detail' route.pk %}">
-                                        <strong>{{ route.route_name }}</strong>
-                                    </a>
-                                </td>
-                                <td>
-                                    {# Assuming status is set via STATUS_CHOICES in the model #}
-                                    <span class="badge bg-{{ route.security_status|lower }}">{{ route.get_security_status_display }}</span>
-                                </td>
-                                <td>{{ route.last_updated|date:"Y-m-d H:i" }}</td>
-                                <td>
-                                    <a href="{% url 'secure_route_update' route.pk %}" class="btn btn-sm btn-outline-primary">
-                                        {% translate "Edit" %}
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for route in secure_routes %}
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition duration-300">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-4">
+                            <h2 class="text-xl font-semibold text-green-700">
+                                <a href="{% url 'secure_route_detail' route.pk %}" class="hover:underline">{{ route.route_name }}</a>
+                            </h2>
+                            {# Security Status Badge Logic #}
+                            <span class="px-3 py-1 text-xs font-bold rounded-full 
+                                {% if route.security_status == 'SECURE' %}bg-green-100 text-green-700
+                                {% elif route.security_status == 'WARNING' %}bg-yellow-100 text-yellow-700
+                                {% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ route.get_security_status_display }}
+                            </span>
+                        </div>
+
+                        <div class="space-y-3 text-gray-700 text-sm">
+                            <p class="flex items-center">
+                                <i class="fas fa-shield-alt mr-2 text-green-500 w-5"></i> 
+                                <span class="font-semibold mr-1">Status:</span> {{ route.get_security_status_display }}
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-clock mr-2 text-green-500 w-5"></i> 
+                                <span class="font-semibold mr-1">Last Updated:</span> {{ route.last_updated|date:"M d, H:i" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    {# Bottom Actions Area #}
+                    <div class="bg-gray-50 p-3 flex justify-end space-x-3 border-t border-gray-100">
+                        <a href="{% url 'secure_route_detail' route.pk %}" class="text-blue-500 hover:text-blue-700 text-sm font-medium">View Details</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="{% url 'secure_route_update' route.pk %}" class="text-indigo-500 hover:text-indigo-700 text-sm font-medium">Edit Route</a>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         {% else %}
-            <div class="alert alert-info mt-5 text-center p-4" role="alert">
-                <p class="lead mb-0">{% translate "You have not defined any secure routes yet." %}</p>
-                <p class="mb-0">{% translate "Define your main transport and patrol routes to assess their security risks." %}</p>
+            {# Empty State Matching the Style #}
+            <div class="text-center p-12 bg-white rounded-lg shadow-md border border-dashed border-gray-300">
+                <div class="flex justify-center mb-4">
+                    <i class="fas fa-route text-6xl text-gray-200"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">{% translate "No routes defined yet." %}</h3>
+                <p class="text-gray-500 mb-6">{% translate "Define transport and patrol routes to monitor security risks." %}</p>
+                <a href="{% url 'secure_route_create' %}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow transition">
+                    {% translate "Create Your First Route" %}
+                </a>
             </div>
         {% endif %}
 
+        {# Back Link #}
+        <div class="mt-8">
+            <a href="{% url 'profile' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i> {% translate "Back to Dashboard" %}
+            </a>
+        </div>
     </div>
 {% endblock content %}

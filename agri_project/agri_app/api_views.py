@@ -1,5 +1,5 @@
-from rest_framework import viewsets, permissions, generics
-from .models import Farmer, Field, Crop, WeatherRecord, SecureRoute, Activity
+from rest_framework import viewsets, permissions, generics, filters
+from .models import Farmer, Field, Crop, WeatherRecord, SecureRoute, Activity, Review, Post ,Comment
 from .serializers import (
     FarmerListSerializer, FarmerDetailSerializer, 
     FarmerCreateSerializer, FarmerUpdateSerializer,
@@ -10,11 +10,16 @@ from .serializers import (
     ActivityCreateUpdateSerializer, WeatherRecordListSerializer,
     WeatherRecordDetailSerializer, WeatherRecordCreateUpdateSerializer,
     SecureRouteListSerializer, SecureRouteDetailSerializer, 
-    SecureRouteCreateUpdateSerializer
+    SecureRouteCreateUpdateSerializer, ReviewSerializer, 
+    PostSerializer
 )
+from .permissions import IsOwnerOrReadOnly
+from rest_framework.authentication import TokenAuthentication
 
 class FarmerViewSet(viewsets.ModelViewSet):
     queryset = Farmer.objects.all()
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'farm_name', 'first_name', 'last_name','city_or_region']
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -28,6 +33,9 @@ class FarmerViewSet(viewsets.ModelViewSet):
         return FarmerUpdateSerializer
             
 class FieldViewSet(viewsets.ModelViewSet):
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['size_in_hectares', 'soil_type']
+
     def get_queryset(self):
         return Field.objects.filter(farmer=self.request.user)
 
@@ -43,7 +51,10 @@ class FieldViewSet(viewsets.ModelViewSet):
         
     
 class CropViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    authentication_classes = [TokenAuthentication]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'category', 'status']
 
     def get_queryset(self):
         return Crop.objects.filter(fields__farmer=self.request.user)
@@ -56,7 +67,9 @@ class CropViewSet(viewsets.ModelViewSet):
         return CropCreateUpdateSerializer
     
 class ActivityViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    authentication_classes = [TokenAuthentication]
+   
 
     def get_queryset(self):
         return Activity.objects.filter(field__farmer=self.request.user).order_by('scheduled_date')
@@ -70,6 +83,9 @@ class ActivityViewSet(viewsets.ModelViewSet):
     
 class WeatherRecordViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    filter_backends = [filters.SearchFilter]
+    search_fields = [ 'location']
 
     def get_queryset(self):
         return WeatherRecord.objects.filter(farmer=self.request.user).order_by('-recorded_at')
@@ -86,6 +102,9 @@ class WeatherRecordViewSet(viewsets.ModelViewSet):
     
 class SecureRouteViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['route_name', 'route_path_geojson', 'security_status', 'risk_notes']
 
     def get_queryset(self):
         return SecureRoute.objects.filter(farmer=self.request.user)
@@ -99,3 +118,17 @@ class SecureRouteViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(farmer=self.request.user)
+
+class ReviewSetView(viewsets.ModelViewSet):
+    queryset = Review.objects.all().order_by('-created_at')[:5]
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        # Automatically set the 'farmer' to the logged-in user
+        serializer.save(farmer=self.user)
+
+class PostViewSet(viewsets.ModelViewSet):
+    # Fetch latest 10 posts and their comments in one efficient query
+    queryset = Post.objects.all().order_by('-created_at').prefetch_related('comment_set')[:10]
+    serializer_class = PostSerializer

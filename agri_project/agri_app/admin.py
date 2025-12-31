@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import Farmer, Crop, Field, Activity, WeatherRecord, SecureRoute
+from .models import Farmer, Crop, Field, Activity, WeatherRecord, SecureRoute, Review, Post, Comment
 
 
 # --------------------------
@@ -108,3 +108,23 @@ class SecureRouteAdmin(admin.ModelAdmin):
 
     list_select_related = ['farmer'] # Optimize for owner lookup
 
+# -----------------------
+# Review , Post and Comment 
+# -----------------------
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('farmer', 'rating', 'created_at')
+    list_filter = ('rating', 'created_at')
+    search_fields = ('content',)
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'created_at') 
+    search_fields = ('title', 'content')            
+    list_filter = ('created_at', 'author')
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('post', 'author', 'created_at')
+    search_fields = ('content',)

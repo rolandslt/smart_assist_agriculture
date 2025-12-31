@@ -1,50 +1,57 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
 
-{% block title %}{% translate "Confirm Weather Delete" %}{% endblock %}
+{% block title %}{% translate "Confirm Delete" %}{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card border-danger shadow-lg">
-                    
-                    <div class="card-header bg-danger text-white">
-                        <h4 class="mb-0">{% translate "Confirm Data Deletion" %}</h4>
-                    </div>
-                    
-                    <div class="card-body">
-                        <p class="lead">
-                            {% translate "Are you absolutely sure you want to delete the weather record from:" %}
-                        </p>
-                        
-                        <blockquote class="blockquote border-start border-danger border-5 ps-3 py-2 bg-light rounded">
-                            <p class="mb-0">
-                                <strong>{{ weather_record.recorded_at|date:"F j, Y, H:i" }}</strong>
-                            </p>
-                            <footer class="blockquote-footer mt-1">
-                                {% translate "Location" %}: {{ weather_record.field.name|default:weather_record.location }}
-                            </footer>
-                        </blockquote>
-                        
-                        <p class="text-danger">
-                            {% translate "This meteorological data will be permanently removed." %}
-                        </p>
-                        
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="d-grid gap-2 mt-4">
-                                <button type="submit" class="btn btn-danger btn-lg">
-                                    <i class="fas fa-trash-alt"></i> {% translate "Yes, Delete Record" %}
-                                </button>
-                                <a href="{% url 'weather_detail' weather_record.pk %}" class="btn btn-secondary btn-lg">
-                                    {% translate "Cancel" %}
-                                </a>
-                            </div>
-                        </form>
-                    </div>
+<div class="max-w-2xl mx-auto p-6">
+    {# --- Warning Card --- #}
+    <div class="bg-white rounded-xl shadow-2xl border border-red-100 overflow-hidden">
+        <div class="bg-red-600 p-6 text-white text-center">
+            <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
+            <h1 class="text-2xl font-bold">{% translate "Delete Weather Record?" %}</h1>
+        </div>
+
+        <div class="p-8 text-center">
+            <p class="text-gray-600 mb-6">
+                {% translate "Are you sure you want to delete the weather record for" %} 
+                <span class="font-bold text-gray-800">{{ weather_record.recorded_at|date:"F j, Y" }}</span>?
+                <br>
+                <span class="text-sm text-red-500 font-semibold uppercase mt-2 block italic">
+                    {% translate "This action cannot be undone." %}
+                </span>
+            </p>
+
+            {# --- Data Summary Box --- #}
+            <div class="bg-gray-50 rounded-lg p-4 mb-8 flex justify-center space-x-12 border border-gray-100">
+                <div class="text-center">
+                    <p class="text-xs text-gray-400 uppercase tracking-widest">{% translate "Temp" %}</p>
+                    <p class="font-bold text-gray-700 text-lg">{{ weather_record.temperature }}°C</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs text-gray-400 uppercase tracking-widest">{% translate "Rainfall" %}</p>
+                    <p class="font-bold text-gray-700 text-lg">{{ weather_record.rainfall }} mm</p>
                 </div>
             </div>
+
+            {# --- The Action Form --- #}
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    {# Cancel Button #}
+                    <a href="{% url 'weather_detail' weather_record.pk %}" 
+                       class="w-full sm:w-auto px-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition duration-150 text-center">
+                        {% translate "No, Keep Record" %}
+                    </a>
+                    
+                    {# Confirm Button #}
+                    <button type="submit" 
+                            class="w-full sm:w-auto px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition duration-150">
+                        {% translate "Yes, Delete Permanently" %}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 {% endblock content %}

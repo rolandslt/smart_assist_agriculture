@@ -4,69 +4,93 @@
 {% block title %}{% translate "Route Detail" %}: {{ secure_route.route_name }}{% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <div class="card shadow-lg">
-                    
-                    {# --- Card Header --- #}
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">{{ secure_route.route_name }}</h4>
-                        <span class="badge bg-{{ secure_route.security_status|lower }}">
-                            {{ secure_route.get_security_status_display }}
-                        </span>
-                    </div>
-                    
-                    <div class="card-body">
-                        
-                        {# --- Geospatial Display --- #}
-                        {# Note: If route_path_geojson is a GeoJSON string, you would use a mapping library (e.g., Leaflet/Mapbox) here. #}
-                        <div class="map-container mb-4 border rounded p-3 bg-light">
-                            <h5 class="text-muted">{% translate "Route Path Visualization" %}</h5>
-                            {# Placeholder for your map visualization library (e.g., Leaflet) #}
-                            <div id="route-map" style="height: 300px;">
-                                
-                            </div>
-                            <small class="text-muted mt-2 d-block">{% translate "GeoJSON Data:" %} {{ secure_route.route_path_geojson|truncatechars:100 }}</small>
-                        </div>
-                        
-                        <dl class="row">
-                            <dt class="col-sm-3 text-muted">{% translate "Security Status" %}</dt>
-                            <dd class="col-sm-9"><span class="badge bg-{{ secure_route.security_status|lower }}">{{ secure_route.get_security_status_display }}</span></dd>
-                            
-                            <dt class="col-sm-3 text-muted">{% translate "Last Updated" %}</dt>
-                            <dd class="col-sm-9">{{ secure_route.last_updated|date:"F j, Y, H:i" }}</dd>
-                        </dl>
+<div class="max-w-4xl mx-auto p-6">
+    {# --- Header Section --- #}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                {{ secure_route.route_name }}
+            </h1>
+            <p class="text-gray-500 mt-1">{% translate "Detailed Security Route Analysis" %}</p>
+        </div>
+        <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold tracking-wide shadow-sm
+            {% if secure_route.security_status == 'Safe' %} bg-green-100 text-green-800 
+            {% elif secure_route.security_status == 'Caution' %} bg-yellow-100 text-yellow-800
+            {% else %} bg-red-100 text-red-800 {% endif %}">
+            <span class="w-2 h-2 rounded-full mr-2 
+                {% if secure_route.security_status == 'Safe' %} bg-green-500 
+                {% elif secure_route.security_status == 'Caution' %} bg-yellow-500 
+                {% else %} bg-red-500 {% endif %}"></span>
+            {{ secure_route.get_security_status_display }}
+        </span>
+    </div>
 
-                        <hr>
-                        
-                        <h5 class="mt-3">{% translate "Risk Notes" %}</h5>
-                        <div class="p-3 border rounded">
-                            {% if secure_route.risk_notes %}
-                                {{ secure_route.risk_notes|linebreaksbr }}
-                            {% else %}
-                                <em class="text-muted">{% translate "No specific risk notes recorded." %}</em>
-                            {% endif %}
-                        </div>
-                        
-                    </div>
-                    
-                    {# --- Card Footer (Actions) --- #}
-                    <div class="card-footer d-flex justify-content-between">
-                        <a href="{% url 'secure_route_list' %}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> {% translate "Back to Route List" %}
-                        </a>
-                        <div>
-                            <a href="{% url 'secure_route_update' secure_route.pk %}" class="btn btn-warning me-2">
-                                <i class="fas fa-edit"></i> {% translate "Edit Route" %}
-                            </a>
-                            <a href="{% url 'secure_route_delete' secure_route.pk %}" class="btn btn-danger">
-                                <i class="fas fa-trash-alt"></i> {% translate "Delete" %}
-                            </a>
-                        </div>
-                    </div>
+    {# --- Main Card Content --- #}
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        
+        {# --- Map Placeholder Section --- #}
+        <div class="p-8 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center">
+                <i class="fas fa-map-marked-alt mr-2 text-green-600"></i>
+                {% translate "Route Path Visualization" %}
+            </h3>
+            <div id="route-map" class="bg-white border-2 border-dashed border-gray-200 rounded-lg h-64 flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fas fa-globe-africa text-gray-300 text-4xl mb-2"></i>
+                    <p class="text-gray-400 text-sm">{% translate "Map Visualization Loading..." %}</p>
+                </div>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-3 font-mono break-all leading-relaxed bg-white p-2 rounded border border-gray-100">
+                <span class="font-bold text-gray-500 uppercase">{% translate "GeoJSON Metadata:" %}</span> {{ secure_route.route_path_geojson|truncatechars:150 }}
+            </p>
+        </div>
+
+        <div class="p-8">
+            {# --- Info Grid --- #}
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div>
+                    <dt class="text-xs font-bold text-gray-400 uppercase tracking-wider">{% translate "Status Assessment" %}</dt>
+                    <dd class="mt-2 text-gray-800 font-medium">{{ secure_route.get_security_status_display }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-bold text-gray-400 uppercase tracking-wider">{% translate "Last System Update" %}</dt>
+                    <dd class="mt-2 text-gray-800 font-medium">
+                        <i class="far fa-clock mr-1 text-green-600"></i>
+                        {{ secure_route.last_updated|date:"F j, Y, H:i" }}
+                    </dd>
+                </div>
+            </dl>
+
+            {# --- Risk Notes --- #}
+            <div class="mb-10">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">{% translate "Risk Notes & Observations" %}</h3>
+                <div class="bg-gray-50 rounded-lg p-5 border-l-4 border-green-500">
+                    {% if secure_route.risk_notes %}
+                        <p class="text-gray-700 leading-relaxed text-sm italic">"{{ secure_route.risk_notes|linebreaksbr }}"</p>
+                    {% else %}
+                        <p class="text-gray-400 text-sm italic">{% translate "No specific risk notes or threats recorded for this route." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# --- Action Footer --- #}
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-8 border-t border-gray-100">
+                {# Back Link #}
+                <a href="{% url 'secure_route_list' %}" class="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> {% translate "Back to Route List" %}
+                </a>
+
+                {# Buttons #}
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <a href="{% url 'secure_route_update' secure_route.pk %}" class="flex-1 sm:flex-none text-center bg-white border border-gray-200 text-gray-700 px-6 py-2.5 rounded-md text-sm font-bold shadow-sm hover:bg-gray-50 transition-all">
+                        <i class="fas fa-edit mr-2 text-yellow-500"></i> {% translate "Edit" %}
+                    </a>
+                    <a href="{% url 'secure_route_delete' secure_route.pk %}" class="flex-1 sm:flex-none text-center bg-red-50 text-red-600 px-6 py-2.5 rounded-md text-sm font-bold hover:bg-red-100 transition-all">
+                        <i class="fas fa-trash-alt mr-2"></i> {% translate "Delete" %}
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock content %}

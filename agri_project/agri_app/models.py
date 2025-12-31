@@ -3,15 +3,48 @@ from django.core.exceptions import ValidationError
 from datetime import date
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.contrib.auth.base_user import BaseUserManager
+from django.conf import settings
+from django.urls import reverse
+from taggit.managers import TaggableManager
+
 
 # Create your models here.
 
 #------------------------
 # Farmer and User
 #------------------------
+class FarmerManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValidationError('Farmers must have an email address')
+        
+        email = self.normalize_email(email)
+        # Force security defaults for regular farmers
+        extra_fields.setdefault('username', email)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+
+        # --- PERMISSION CONTROL START ---
+        # You can trigger a logic here to auto-assign a 'Farmer' group
+        # or set default row-level permissions
+        # --- PERMISSION CONTROL END ---
+
+        return user
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, password, **extra_fields)
+
 class Farmer(AbstractUser):
     email = models.EmailField(
-        'email address', # verbose name for the admin site
+        'email address', 
         unique=True,        
         )
     farm_name = models.CharField(
@@ -27,6 +60,8 @@ class Farmer(AbstractUser):
         blank=True,
         null=True,
     )
+    profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+    objects = FarmerManager()
     
 
     def clean(self):
@@ -35,9 +70,9 @@ class Farmer(AbstractUser):
             pass
 
      # --- CRUCIAL CONFIGURATION ---
-    # The username field is required by AbstractUser. If you want to log in with email:
-    USERNAME_FIELD = 'email' 
-    REQUIRED_FIELDS = ['username'] # Ensure username is still prompted during superuser creation
+    
+    USERNAME_FIELD = 'username' 
+    REQUIRED_FIELDS = ['email'] # Ensure username is still prompted during superuser creation
 
     class Meta:
         verbose_name= 'Farmer'
@@ -156,10 +191,21 @@ class WeatherRecord(models.Model):
     
     rainfall = models.FloatField(help_text=("Rainfall/precipitation in millimeters."))
     
-    wind_speed = models.FloatField(null=True, blank=True)
+    wind_speed = models.FloatField(null=True, blank=True,
+                                   help_text=("Wind speed in mph, km/h, or m/s"))
+
+    SOURCE_CHOICES = [
+        ('manual', 'Manual Entry'),
+        ('api', 'Weather API'),
+        ('sensor', 'IoT Sensor'),
+    ]
     
-    source = models.CharField(max_length=50, default="manual", 
-                              help_text=("Data source (e.g., manual, API, sensor)."))
+    source = models.CharField(
+        max_length=50, 
+        choices=SOURCE_CHOICES, 
+        default='manual',
+        help_text=("Data source (e.g., manual, API, sensor).")
+        )
 
     def __str__(self):
         return f"Weather for {self.field.name if self.field else 'N/A'} at {self.recorded_at.date()}"
@@ -212,3 +258,48 @@ class SecureRoute(models.Model):
         ordering = ['-last_updated']
 
     
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
+    created_at = models.DateField(auto_now_add=True)
+    tags = TaggableManager(blank=True)
+
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='comment')
+
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='comment')
+
+    @property
+    def total_likes(self):
+        return self.likes.count()
+    class Meta:
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return self.title
+    
+    def get_absolute_url(self):
+        return reverse('post_detail', kwargs={'pk': self.pk})
+    
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+   
+
+
+    def __str__(self):
+        return f'Comment by {self.author} on {self.post.title}'
+    
+class Review(models.Model):
+    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE)
+    content = models.CharField(max_length=2000)
+    rating = models.IntegerField(default=5)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Review by {self.farmer.username}"

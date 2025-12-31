@@ -1,88 +1,67 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
-{% load widget_tweaks %}
+{% load static %}
 
-{% block title %}
-    {% if object %}
-        {% translate "Edit Secure Route" %}
-    {% else %}
-        {% translate "Define New Secure Route" %}
-    {% endif %}
-{% endblock %}
+{% block title %}{% translate "Route Location" %}{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-lg">
-                    
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">
-                            {% if object %}
-                                {% translate "Update Route" %}: {{ object.route_name }}
-                            {% else %}
-                                {% translate "New Security Route Definition" %}
-                            {% endif %}
-                        </h4>
-                    </div>
+<div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">{% translate "Set Route Location" %}</h1>
 
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-                            
-                            {% for field in form %}
-                                {# We exclude 'last_updated' as it's automatically handled by the model #}
-                                {% if field.name != 'last_updated' %}
-                                    <div class="mb-3">
-                                        <label for="{{ field.id_for_label }}" class="form-label fw-bold">
-                                            {{ field.label }}
-                                        </label>
-                                        
-                                        {% if field.field.widget.input_type == 'select' %}
-                                            {{ field|add_class:"form-select" }}
-                                        {% else %}
-                                            {# Textarea for GeoJSON and Notes will also get form-control #}
-                                            {{ field|add_class:"form-control" }}
-                                        {% endif %}
-                                        
-                                        {% if field.help_text %}
-                                            <div class="form-text text-muted">{{ field.help_text }}</div>
-                                        {% endif %}
-                                        
-                                        {% for error in field.errors %}
-                                            <div class="alert alert-danger p-2 mt-1">{{ error }}</div>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                            
-                            {# --- FORWARD and BACKWARD BUTTONS --- #}
-                            <div class="d-flex justify-content-between mt-4">
-                                
-                                {# Backward Button: Cancel/Back #}
-                                {% if object %}
-                                    <a href="{% url 'secure_route_detail' object.pk %}" class="btn btn-secondary btn-lg">
-                                        <i class="fas fa-arrow-left"></i> {% translate "Cancel / Back" %}
-                                    </a>
-                                {% else %}
-                                    <a href="{% url 'secure_route_list' %}" class="btn btn-secondary btn-lg">
-                                        <i class="fas fa-arrow-left"></i> {% translate "Cancel / Back" %}
-                                    </a>
-                                {% endif %}
-
-                                {# Forward Button: Submit/Save #}
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    {% if object %}
-                                        {% translate "Save Changes" %} <i class="fas fa-check"></i>
-                                    {% else %}
-                                        {% translate "Define Route" %} <i class="fas fa-arrow-right"></i>
-                                    {% endif %}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.route_name.label }}</label>
+                {{ form.route_name }}
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.security_status.label }}</label>
+                {{ form.security_status }}
             </div>
         </div>
-    </div>
+
+        {# --- Map UI Section --- #}
+        <div class="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+            <label class="block text-sm font-bold text-gray-800 mb-3 flex items-center">
+                <i class="fas fa-map-marked-alt text-green-600 mr-2"></i>
+                {% translate "Pin Route Point" %}
+            </label>
+            
+            {# Map Container #}
+            <div id="map" class="w-full h-96 rounded-lg border border-gray-200" style="z-index: 1;"></div>
+            
+            <p class="text-xs text-gray-500 mt-3 italic">
+                <i class="fas fa-info-circle mr-1"></i>
+                {% translate "Click anywhere on the map above to place a security marker." %}
+            </p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">{{ form.risk_notes.label }}</label>
+            {{ form.risk_notes }}
+        </div>
+
+        {# The hidden field the script interacts with #}
+        {{ form.route_path_geojson }}
+
+        <div class="flex justify-between items-center pt-6">
+            <a href="{% url 'secure_route_list' %}" class="text-gray-500 font-medium">{% translate "Cancel" %}</a>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-md shadow-md transition-all">
+                {% translate "Save Secure Route" %}
+            </button>
+        </div>
+    </form>
+</div>
 {% endblock content %}
+
+{# --- External Assets --- #}
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/route-map.js' %}"></script>
+{% endblock %}

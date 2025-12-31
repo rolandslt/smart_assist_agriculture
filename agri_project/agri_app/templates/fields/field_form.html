@@ -11,6 +11,7 @@
     <form method="post" class="space-y-6">
         {% csrf_token %}
         
+        
         <div class="mb-4">
             <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">Name</label>
             <input type="text" 
@@ -24,7 +25,18 @@
                 <p class="mt-1 text-sm text-red-600">{{ form.name.errors }}</p>
             {% endif %}
         </div>
-
+        <div class="mb-4">
+            <label for="{{ form.location.id_for_label }}" class="block text-sm font-medium text-gray-700">Location</label>
+            <input type="text" 
+                    name="{{ form.location.name }}" 
+                    id="{{ form.location.id_for_label }}" 
+                    value="{{ form.location.value|default:'' }}" 
+                    placeholder="e.g., North-East Sector, GPS Coords, or Town"
+                    class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm p-3 focus:ring-green-500 focus:border-green-500">
+            {% if form.location.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.location.errors }}</p>
+            {% endif %}
+        </div>
         <div class="mb-4">
             <label for="{{ form.size_in_hectares.id_for_label }}" class="block text-sm font-medium text-gray-700">Size in hectares</label>
             <input type="number" 

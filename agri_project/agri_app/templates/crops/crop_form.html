@@ -44,6 +44,13 @@
                 {% if form.instance.pk %}Save Changes{% else %}Add Crop{% endif %}
             </button>
         </div>
+        <div class="mt-8">
+            <a href="{% url 'crop_create' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                &larr; Back to  Crop
+            </a>
+        </div>
     </form>
+    
 </div>
+
 {% endblock content %}

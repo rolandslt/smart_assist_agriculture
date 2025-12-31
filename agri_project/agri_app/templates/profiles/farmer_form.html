@@ -1,64 +1,81 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
-{% load widget_tweaks %}
 
-{% block title %}{% translate "Edit Profile" %}{% endblock %}
+
+{% block title %}{% translate "Update Profile" %}{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-7">
-                <div class="card shadow-lg">
-                    
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">{% translate "Update Farm Profile Details" %}</h4>
-                    </div>
-
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-                            
-                            {# Iterate through form fields for Farmer model fields (phone, address, etc.) #}
-                            {% for field in form %}
-                                <div class="mb-3">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-bold">
-                                        {{ field.label }}
-                                    </label>
-                                    
-                                    {# Apply appropriate Bootstrap classes using widget_tweaks #}
-                                    {% if field.field.widget.input_type == 'select' %}
-                                        {{ field|add_class:"form-select" }}
-                                    {% else %}
-                                        {{ field|add_class:"form-control" }}
-                                    {% endif %}
-                                    
-                                    {% if field.help_text %}
-                                        <div class="form-text text-muted">{{ field.help_text }}</div>
-                                    {% endif %}
-                                    
-                                    {% for error in field.errors %}
-                                        <div class="alert alert-danger p-2 mt-1">{{ error }}</div>
-                                    {% endfor %}
-                                </div>
-                            {% endfor %}
-                            
-                            {# --- FORWARD and BACKWARD BUTTONS --- #}
-                            <div class="d-flex justify-content-between mt-4">
-                                
-                                {# Backward Button: Go back to detail view #}
-                                <a href="{% url 'farmer_profile' %}" class="btn btn-secondary btn-lg">
-                                    <i class="fas fa-arrow-left"></i> {% translate "Cancel / Back to Profile" %}
-                                </a>
-
-                                {# Forward Button: Submit/Save #}
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    {% translate "Save Profile Changes" %} <i class="fas fa-check"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+<div class="max-w-3xl mx-auto p-6">
+    {# --- Header Section --- #}
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">{% translate "Edit Profile" %}</h1>
+            <p class="text-gray-500 mt-2">{% translate "Keep your contact and farm details up to date." %}</p>
+        </div>
+        <div class="hidden sm:block text-green-600 opacity-20">
+            <i class="fas fa-user-edit text-5xl"></i>
         </div>
     </div>
+
+    {# --- Form Card --- #}
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="p-8">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for field in form %}
+                        <div class="{% if field.name == 'address' %}md:col-span-2{% endif %}">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
+                                {{ field.label }}
+                            </label>
+
+                            {# Using widget_tweaks or standard rendering with class injection #}
+                            {% if field.name == 'address' or field.name == 'farm_location' %}
+                                {{ field }}
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <p class="mt-1 text-xs text-gray-400 italic">{{ field.help_text }}</p>
+                            {% endif %}
+                            
+                            {% for error in field.errors %}
+                                <p class="text-red-500 text-xs mt-1 font-medium italic">
+                                    <i class="fas fa-exclamation-circle mr-1"></i> {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {# --- Action Buttons --- #}
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-8 mt-4 border-t border-gray-100">
+                    
+                    {# Cancel Button - Check if your URL name is 'profile' or 'farmer_profile' #}
+                    <a href="{% url 'profile' %}" class="w-full sm:w-auto px-6 py-3 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors flex items-center justify-center">
+                        <i class="fas fa-times mr-2"></i> {% translate "Cancel Changes" %}
+                    </a>
+
+                    {# Submit Button #}
+                    <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-md shadow-md transition-all flex items-center justify-center transform active:scale-95">
+                        <i class="fas fa-save mr-2"></i> {% translate "Save Profile" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# --- Privacy Note --- #}
+    <div class="mt-8 bg-blue-50 border border-blue-100 rounded-lg p-4 flex gap-4">
+        <i class="fas fa-lock text-blue-400 mt-1"></i>
+        <div>
+            <h4 class="text-sm font-bold text-blue-800">{% translate "Privacy & Security" %}</h4>
+            <p class="text-xs text-blue-600 leading-relaxed mt-1">
+                {% translate "Your GPS location and contact details are only visible to authorized system administrators and selected cooperative members." %}
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock content %}

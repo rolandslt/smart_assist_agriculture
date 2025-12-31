@@ -4,23 +4,24 @@
 {% block title %}{% translate "Activity Planning Calendar" %}{% endblock %}
 
 {% block content %}
+    <div class="max-w-7xl mx-auto p-6">
+        {# --- Header --- #}
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">{% translate "Farming Activities" %}</h1>
 
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>{% translate "Farming Activities" %}</h2>
-            <a href="{% url 'activity_create' %}" class="btn btn-success">
-                <i class="fas fa-plus-circle"></i> {% translate "Schedule New Activity" %}
+            <a href="{% url 'activity_create' %}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md shadow-sm transition duration-150 flex items-center">
+                <i class="fas fa-plus-circle mr-2"></i> {% translate "Schedule New Activity" %}
             </a>
         </div>
 
-        {# --- Activity Status Filters --- #}
-        <div class="mb-4">
-            <nav class="nav nav-pills nav-fill">
-                <a class="nav-link {% if not current_status or current_status == 'all' %}active{% endif %}" 
+        {# --- Activity Status Filters (Button-Style Tabs) --- #}
+        <div class="mb-8 overflow-x-auto">
+            <nav class="flex space-x-2 bg-gray-100 p-1 rounded-lg inline-flex">
+                <a class="px-4 py-2 rounded-md text-sm font-medium transition {% if not current_status or current_status == 'all' %}bg-white shadow text-green-700{% else %}text-gray-500 hover:text-gray-700{% endif %}" 
                    href="{% url 'activity_list' %}">{% translate "All Tasks" %}</a>
                 
                 {% for status_code, status_label in status_choices %}
-                    <a class="nav-link {% if current_status == status_code %}active{% endif %}" 
+                    <a class="px-4 py-2 rounded-md text-sm font-medium transition {% if current_status == status_code %}bg-white shadow text-green-700{% else %}text-gray-500 hover:text-gray-700{% endif %}" 
                        href="{% url 'activity_list' %}?status={{ status_code }}">
                         {{ status_label }}
                     </a>
@@ -28,47 +29,65 @@
             </nav>
         </div>
 
-        {# --- Activity List Table --- #}
+        {# --- Activity List Cards --- #}
         {% if activities %}
-            <div class="table-responsive">
-                <table class="table table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th>{% translate "Date" %}</th>
-                            <th>{% translate "Title / Task" %}</th>
-                            <th>{% translate "Field" %}</th>
-                            <th>{% translate "Crop" %}</th>
-                            <th>{% translate "Status" %}</th>
-                            <th>{% translate "Actions" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for activity in activities %}
-                            <tr>
-                                <td>{{ activity.scheduled_date|date:"Y-m-d" }}</td>
-                                <td>
-                                    <a href="{% url 'activity_detail' activity.pk %}">
-                                        <strong>{{ activity.title }}</strong>
-                                    </a>
-                                </td>
-                                <td>{{ activity.field.name|default:"N/A" }}</td>
-                                <td>{{ activity.crop.name|default:"General Task" }}</td>
-                                <td><span class="badge bg-{{ activity.status|lower }}">{{ activity.get_status_display }}</span></td>
-                                <td>
-                                    <a href="{% url 'activity_update' activity.pk %}" class="btn btn-sm btn-outline-primary">
-                                        {% translate "Edit" %}
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for activity in activities %}
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition duration-300">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-3">
+                            <h2 class="text-xl font-semibold text-green-700">
+                                <a href="{% url 'activity_detail' activity.pk %}" class="hover:underline">{{ activity.title }}</a>
+                            </h2>
+                            {# Dynamic Badge Color based on status #}
+                            <span class="px-2 py-1 text-xs font-bold rounded-full 
+                                {% if activity.status == 'COMPLETED' %}bg-green-100 text-green-700
+                                {% elif activity.status == 'PENDING' %}bg-yellow-100 text-yellow-700
+                                {% else %}bg-blue-100 text-blue-700{% endif %}">
+                                {{ activity.get_status_display }}
+                            </span>
+                        </div>
+
+                        <div class="space-y-2 text-gray-700 text-sm">
+                            <p class="flex items-center">
+                                <i class="far fa-calendar-alt mr-2 text-green-500 w-5"></i> 
+                                <span class="font-semibold mr-1">Date:</span> {{ activity.scheduled_date|date:"M d, Y" }}
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2 text-green-500 w-5"></i> 
+                                <span class="font-semibold mr-1">Field:</span> {{ activity.field.name|default:"General" }}
+                            </p>
+                            <p class="flex items-center">
+                                <i class="fas fa-seedling mr-2 text-green-500 w-5"></i> 
+                                <span class="font-semibold mr-1">Crop:</span> {{ activity.crop.name|default:"General Task" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    {# Bottom Actions Area #}
+                    <div class="bg-gray-50 p-3 flex justify-end space-x-3">
+                        <a href="{% url 'activity_detail' activity.pk %}" class="text-blue-500 hover:text-blue-700 text-sm font-medium">View Details</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="{% url 'activity_update' activity.pk %}" class="text-indigo-500 hover:text-indigo-700 text-sm font-medium">Edit</a>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         {% else %}
-            <div class="alert alert-info mt-5" role="alert">
-                {% translate "You have no activities scheduled for this filter. Time to plan some work!" %}
+            {# Empty State #}
+            <div class="text-center p-12 bg-white rounded-lg shadow-md border border-dashed border-gray-300">
+                <i class="fas fa-calendar-check text-6xl text-gray-200 mb-4"></i>
+                <p class="text-xl text-gray-600 mb-4">{% translate "No activities scheduled for this filter." %}</p>
+                <a href="{% url 'activity_create' %}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-md shadow transition">
+                    {% translate "Plan Your First Activity" %}
+                </a>
             </div>
         {% endif %}
 
+        <div class="mt-8">
+            <a href="{% url 'profile' %}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i> {% translate "Back to Menu" %}
+            </a>
+        </div>
     </div>
 {% endblock content %}

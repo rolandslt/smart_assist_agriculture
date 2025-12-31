@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Farmer, Crop, Field, WeatherRecord, Activity, SecureRoute
+from .models import Farmer, Crop, Field, WeatherRecord, Activity, SecureRoute, Review, Post, Comment
 from django.contrib.auth import get_user_model
 Farmer = get_user_model() 
 
@@ -142,7 +142,7 @@ class CropCreateUpdateSerializer(serializers.ModelSerializer):
             'status'
         ]
 
-        def validate_field(self, value):
+    def validate_fields(self, value):
             """
             Security Check: Ensure the field being assigned belongs 
             to the farmer making the request.
@@ -151,7 +151,7 @@ class CropCreateUpdateSerializer(serializers.ModelSerializer):
             if value.farmer != user:
                 raise serializers.ValidationError("You cannot add a crop to a field you do not own.")
             return value
-        
+            
 
 #---------------------------------
 # Planting calendar Serializers
@@ -244,12 +244,12 @@ class WeatherRecordCreateUpdateSerializer(serializers.ModelSerializer):
             'source'
         ]
 
-        def validate_field(self, value):
+    def validate_field(self, value):
         # Ensure the field belongs to the person logging the weather
-            user = self.context['request'].user
-            if value.farmer != user:
-                raise serializers.ValidationError("You cannot record weather for a field you do not own.")
-            return value
+        user = self.context['request'].user
+        if value.farmer != user:
+            raise serializers.ValidationError("You cannot record weather for a field you do not own.")
+        return value
         
 
 #----------------------
@@ -279,4 +279,25 @@ class SecureRouteCreateUpdateSerializer(serializers.ModelSerializer):
             'risk_notes'
         ]
 
-    
+
+class ReviewSerializer(serializers.ModelSerializer):
+    farmer_name = serializers.ReadOnlyField(source='farmer.username')
+    class Meta:
+        model = Review
+        fields = ['id', 'farmer', 'farmer_name', 'content', 'rating', 'created_at']
+        read_only_fields = ['farmer', 'created_at']
+        
+class CommentSerializer(serializers.ModelSerializer):
+    farmer_name = serializers.ReadOnlyField(source='farmer.username')
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'farmer_name', 'content', 'created_at']
+
+class PostSerializer(serializers.ModelSerializer):
+    # This matches the 'comment_set' to show comments inside the post object
+    comments = CommentSerializer(many=True, read_only=True, source='comment_set')
+
+    class Meta:
+        model = Post
+        fields = ['id', 'title', 'content', 'author', 'created_at', 'comments']

@@ -1,88 +1,80 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
-{% load widget_tweaks %}
 
 {% block title %}
-    {% if object %}
-        {% translate "Edit Weather Record" %}
-    {% else %}
-        {% translate "Log New Weather Data" %}
-    {% endif %}
+    {% if object %}{% translate "Edit Weather Record" %}{% else %}{% translate "Log Weather Data" %}{% endif %}
 {% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-7">
-                <div class="card shadow-lg">
+<div class="max-w-3xl mx-auto p-6">
+    {# --- Header Section --- #}
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">
+            {% if object %}
+                {% translate "Update Weather Record" %}
+            {% else %}
+                {% translate "Log New Weather Data" %}
+            {% endif %}
+        </h1>
+        <p class="text-gray-500 mt-2">{% translate "Track temperature, humidity, and rainfall for your farm location." %}</p>
+    </div>
+
+    {# --- Form Card --- #}
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="p-8">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div>
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-1">
+                            {{ field.label }}
+                        </label>
+
+                        {# Renders using the SIMPLE_STYLE from your forms.py widgets #}
+                        {# Note: recorded_at will render as datetime-local if set in forms.py #}
+                        {{ field }}
+                        
+                        {% if field.help_text %}
+                            <p class="mt-1 text-xs text-gray-400 italic">{{ field.help_text }}</p>
+                        {% endif %}
+                        
+                        {% for error in field.errors %}
+                            <p class="text-red-500 text-xs mt-1 font-medium italic">
+                                <i class="fas fa-exclamation-circle mr-1"></i> {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                {# --- Action Buttons --- #}
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-100">
                     
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">
-                            {% if object %}
-                                {% translate "Update Record" %}
-                            {% else %}
-                                {% translate "New Weather Data Entry" %}
-                            {% endif %}
-                        </h4>
-                    </div>
+                    {# Backward Button #}
+                    <a href="{% if object %}{% url 'weather_detail' object.pk %}{% else %}{% url 'weather_list' %}{% endif %}" 
+                       class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-800 transition duration-150">
+                        <i class="fas fa-arrow-left mr-2"></i> {% translate "Cancel / Back" %}
+                    </a>
 
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-                            
-                            {% for field in form %}
-                                <div class="mb-3">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-bold">
-                                        {{ field.label }}
-                                    </label>
-                                    
-                                    {% if field.field.widget.input_type == 'select' %}
-                                        {{ field|add_class:"form-select" }}
-                                    {% else %}
-                                        {# Use datetime-local for better timestamp input if available #}
-                                        {% if field.name == 'recorded_at' %}
-                                            <input type="datetime-local" name="{{ field.name }}" id="{{ field.id_for_label }}" 
-                                                   class="form-control" value="{{ field.value|date:'Y-m-d\TH:i'|default_if_none:'' }}">
-                                        {% else %}
-                                            {{ field|add_class:"form-control" }}
-                                        {% endif %}
-                                    {% endif %}
-                                    
-                                    {% if field.help_text %}
-                                        <div class="form-text text-muted">{{ field.help_text }}</div>
-                                    {% endif %}
-                                    
-                                    {% for error in field.errors %}
-                                        <div class="alert alert-danger p-2 mt-1">{{ error }}</div>
-                                    {% endfor %}
-                                </div>
-                            {% endfor %}
-                            
-                            {# --- FORWARD and BACKWARD BUTTONS --- #}
-                            <div class="d-flex justify-content-between mt-4">
-                                
-                                {% if object %}
-                                    <a href="{% url 'weather_detail' object.pk %}" class="btn btn-secondary btn-lg">
-                                        <i class="fas fa-arrow-left"></i> {% translate "Cancel / Back" %}
-                                    </a>
-                                {% else %}
-                                    <a href="{% url 'weather_list' %}" class="btn btn-secondary btn-lg">
-                                        <i class="fas fa-arrow-left"></i> {% translate "Cancel / Back" %}
-                                    </a>
-                                {% endif %}
-
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    {% if object %}
-                                        {% translate "Save Changes" %} <i class="fas fa-check"></i>
-                                    {% else %}
-                                        {% translate "Save Record" %} <i class="fas fa-arrow-right"></i>
-                                    {% endif %}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                    {# Forward Button #}
+                    <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-md shadow-md transition duration-150 flex items-center justify-center">
+                        {% if object %}
+                            {% translate "Save Changes" %} <i class="fas fa-check ml-2"></i>
+                        {% else %}
+                            {% translate "Save Record" %} <i class="fas fa-cloud-sun ml-2"></i>
+                        {% endif %}
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
+
+    {# --- Helpful Tip --- #}
+    <div class="mt-6 flex items-start gap-3 p-4 bg-green-50 rounded-lg border border-green-100">
+        <i class="fas fa-info-circle text-green-500 mt-1"></i>
+        <p class="text-xs text-green-700 leading-relaxed">
+            {% translate "Consistent weather logging helps the system provide better harvest predictions and pest alerts for your specific micro-climate." %}
+        </p>
+    </div>
+</div>
 {% endblock content %}

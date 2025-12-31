@@ -1,77 +1,94 @@
 {% extends "base_generic.html" %}
 {% load i18n %}
 
-{% block title %}Farmer Dashboard{% endblock %}
+{% block title %}Farmer Dashboard - Monitoring{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto p-6">
-    <h1 class="text-4xl font-extrabold text-gray-800 mb-8">
-        {% translate "Welcome" %}, {{ user.username }}!
-    </h1>
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-extrabold text-gray-800">
+            <i class="fas fa-desktop mr-2 text-green-600"></i>{% translate "Live Monitoring" %}: {{ user.username }}
+        </h1>
+        <a href="{% url 'farmer_profile' %}" class="flex items-center text-gray-600 hover:text-green-600 transition">
+            <i class="fas fa-user-circle text-2xl mr-2"></i>
+            <span class="font-medium">{% translate "Profile" %}</span>
+        </a>
+    </div>
 
-    {# --- Dashboard Cards Grid --- #}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-10">
+        <a href="{% url 'field_list' %}" class="flex items-center p-3 bg-white rounded shadow-sm border-l-4 border-green-600 hover:bg-green-50">
+            <i class="fas fa-map-marked-alt text-green-500 mr-3"></i>
+            <span class="text-sm font-bold text-gray-700">{% translate "Fields" %}</span>
+        </a>
+        <a href="{% url 'crop_list' %}" class="flex items-center p-3 bg-white rounded shadow-sm border-l-4 border-blue-600 hover:bg-blue-50">
+            <i class="fas fa-seedling text-blue-500 mr-3"></i>
+            <span class="text-sm font-bold text-gray-700">{% translate "Crops" %}</span>
+        </a>
+        <a href="{% url 'activity_list' %}" class="flex items-center p-3 bg-white rounded shadow-sm border-l-4 border-yellow-600 hover:bg-yellow-50">
+            <i class="fas fa-calendar-alt text-yellow-500 mr-3"></i>
+            <span class="text-sm font-bold text-gray-700">{% translate "Planner" %}</span>
+        </a>
+        <a href="{% url 'secure_route_list' %}" class="flex items-center p-3 bg-white rounded shadow-sm border-l-4 border-red-600 hover:bg-red-50">
+            <i class="fas fa-route text-red-500 mr-3"></i>
+            <span class="text-sm font-bold text-gray-700">{% translate "Security" %}</span>
+        </a>
+        <a href="{% url 'weather_list' %}" class="hidden lg:flex items-center p-3 bg-white rounded shadow-sm border-l-4 border-indigo-600 hover:bg-indigo-50">
+            <i class="fas fa-cloud-sun-rain text-indigo-500 mr-3"></i>
+            <span class="text-sm font-bold text-gray-700">{% translate "Weather" %}</span>
+        </a>
+    </div>
 
-        {# --- 1. Manage My Fields (Existing) --- #}
-        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-green-600">
-            <i class="fas fa-map-marked-alt text-4xl text-green-500 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">{% translate "Manage Fields" %}</h2>
-            <p class="text-gray-600 mb-4">{% translate "View, add, edit, or delete your farm plots and location details." %}</p>
-            <a href="{% url 'field_list' %}" class="text-green-600 hover:text-green-800 font-semibold flex items-center">
-                {% translate "Go to Fields" %} <i class="fas fa-arrow-right ml-2 text-sm"></i>
-            </a>
+    <h2 class="text-xl font-bold text-gray-700 mb-4 flex items-center">
+        <span class="relative flex h-3 w-3 mr-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+        {% translate "Active Field Status" %}
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {# Loop through fields - Assuming you pass 'fields' from your view #}
+        {% for field in fields %}
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+            <div class="p-5">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">{{ field.name }}</h3>
+                        <p class="text-sm text-gray-500"><i class="fas fa-location-arrow mr-1"></i> {{ field.location }}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                        {% translate "Active" %}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 py-4 border-t border-b border-gray-50 mb-4">
+                    <div class="text-center">
+                        <i class="fas fa-seedling text-blue-500 mb-1"></i>
+                        <p class="text-xs text-gray-400 uppercase">{% translate "Crop" %}</p>
+                        <p class="font-bold text-gray-700">{{ field.current_crop }}</p>
+                    </div>
+                    <div class="text-center">
+                        <i class="fas fa-tint text-cyan-500 mb-1"></i>
+                        <p class="text-xs text-gray-400 uppercase">{% translate "Soil Health" %}</p>
+                        <p class="font-bold text-gray-700">88%</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-400">{% translate "Last updated: Just now" %}</span>
+                    <a href="{% url 'field_detail' field.id %}" class="text-sm font-bold text-green-600 hover:underline">
+                        {% translate "View Details" %} &rarr;
+                    </a>
+                </div>
+            </div>
         </div>
-
-        {# --- 2. Manage Crops (Existing) --- #}
-        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-blue-600">
-            <i class="fas fa-seedling text-4xl text-blue-500 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">{% translate "Manage Crops" %}</h2>
-            <p class="text-gray-600 mb-4">{% translate "Track planting dates, health status, and harvest plans for all your crops." %}</p>
-            <a href="{% url 'crop_list' %}" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center">
-                {% translate "Go to Crops" %} <i class="fas fa-arrow-right ml-2 text-sm"></i>
-            </a>
+        {% empty %}
+        <div class="col-span-full p-12 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+            <i class="fas fa-seedling text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">{% translate "No fields found. Start by adding your first field." %}</p>
+            <a href="{% url 'field_create' %}" class="mt-4 inline-block bg-green-600 text-white px-6 py-2 rounded-lg">{% translate "Add Field" %}</a>
         </div>
-
-        {# --- 3. Planning & Activities (Existing) --- #}
-        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-yellow-600">
-            <i class="fas fa-calendar-alt text-4xl text-yellow-500 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">{% translate "Activities & Planner" %}</h2>
-            <p class="text-gray-600 mb-4">{% translate "View your planting calendar and manage scheduled farming tasks." %}</p>
-            <a href="{% url 'activity_list' %}" class="text-yellow-600 hover:text-yellow-800 font-semibold flex items-center">
-                {% translate "Go to Planner" %} <i class="fas fa-arrow-right ml-2 text-sm"></i>
-            </a>
-        </div>
-
-        {# --- 4. NEW: Security Routes --- #}
-        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-red-600">
-            <i class="fas fa-route text-4xl text-red-500 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">{% translate "Security Routes" %}</h2>
-            <p class="text-gray-600 mb-4">{% translate "Define and monitor transport and patrol routes for security assessments." %}</p>
-            <a href="{% url 'secure_route_list' %}" class="text-red-600 hover:text-red-800 font-semibold flex items-center">
-                {% translate "View Routes" %} <i class="fas fa-arrow-right ml-2 text-sm"></i>
-            </a>
-        </div>
-
-        {# --- 5. NEW: Weather Records --- #}
-        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-indigo-600">
-            <i class="fas fa-cloud-sun-rain text-4xl text-indigo-500 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">{% translate "Weather Records" %}</h2>
-            <p class="text-gray-600 mb-4">{% translate "Log and review historical weather data (rain, temp, humidity, etc.)." %}</p>
-            <a href="{% url 'weather_list' %}" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
-                {% translate "View Weather" %} <i class="fas fa-arrow-right ml-2 text-sm"></i>
-            </a>
-        </div>
-
-        {# --- 6. NEW: Farmer Profile --- #}
-        <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition duration-300 border-t-4 border-gray-600">
-            <i class="fas fa-user-circle text-4xl text-gray-500 mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">{% translate "My Profile" %}</h2>
-            <p class="text-gray-600 mb-4">{% translate "Manage personal contact details and farm-specific settings." %}</p>
-            <a href="{% url 'farmer_profile'  %}" class="text-gray-600 hover:text-gray-800 font-semibold flex items-center">
-                {% translate "View Profile" %} <i class="fas fa-arrow-right ml-2 text-sm"></i>
-            </a>
-        </div>
-        
-    </div> 
+        {% endfor %}
+    </div>
 </div>
 {% endblock content %}

@@ -4,7 +4,7 @@
     {% load static i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Smart Agriculture{% endblock %}</title>
+    <title>{% block title %}Smart Kivu Agriculture{% endblock %}</title>
     <!-- Tailwind CSS CDN for styling -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,7 +18,7 @@
         <nav class="flex justify-between items-center max-w-7xl mx-auto p-4">
         
             <a href="{% url 'home' %}" class="text-2xl font-bold text-green-600 pr-8">
-            Smart Agriculture
+            Smart KiVu Agriculture
             </a>
 
             <div class="flex space-x-6 flex-grow">
@@ -65,9 +65,27 @@
                             <a href="{% url 'profile' %}" class="flex items-center p-3 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200">
                                 <i class="fas fa-id-card mr-3 text-gray-500"></i> View/Edit Profile
                             </a>
-                            <a href="{% url 'field_list' %}" class="menu-item">
-                                <i class="fas fa-map-marked-alt"></i> Manage Fields
-                            </a>
+                            <ul>
+                                <li>
+                                    <a href="{% url 'field_list' %}" class="menu-item flex items-center p-3 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200">
+                                        <i class="fas fa-map-marked-alt"></i> Manage Fields
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'activity_list' %}" class="menu-item flex items-center p-3 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200">
+                                        <i class="fas fa-seedling"></i> Manage Activities
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'crop_list' %}" class="menu-item flex items-center p-3 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200">
+                                        <i class="fas fa-seedling mr-3 text-gray-500"></i> Manage Crops
+                                    </a>
+                                </li>
+                                
+                                
+                            </ul>
+                           
+                            
                             <form method="post" action="{% url 'logout' %}" class="m-0">
                                 {% csrf_token %}
                                 <button type="submit" class="logout-form-button text-red-600 hover:text-red-800">

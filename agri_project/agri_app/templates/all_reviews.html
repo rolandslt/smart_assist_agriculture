@@ -1,0 +1,29 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <a href="{% url 'home' %}" class="text-gray-500 mb-4 inline-block">&larr; Back to Home</a>
+    <h1 class="text-3xl font-bold mb-8">All Farmer Reviews</h1>
+
+    <div class="space-y-6">
+        {% for review in page_obj %}
+            <div class="p-6 bg-white shadow rounded-lg border-l-4 border-green-500">
+                <p class="text-lg italic">"{{ review.content }}"</p>
+                <div class="mt-4 flex justify-between text-sm text-gray-500">
+                    <span class="font-bold text-black">{{ review.farmer.username }}</span>
+                    <span>{{ review.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-8 flex gap-2">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 border rounded">Previous</a>
+        {% endif %}
+        <span class="px-4 py-2 bg-green-100 text-green-800 rounded">Page {{ page_obj.number }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 border rounded">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

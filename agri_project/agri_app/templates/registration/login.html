@@ -14,11 +14,11 @@
     </div>
     {% endif %}
 
-    <form method="post" action="{% url 'login' %}" class="space-y-6">
+    <form method="POST" action="{% url 'login' %}" class="space-y-6">
         {% csrf_token %}
 
         <div class="field-container">
-            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Username</label>
+            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">Username or Email</label>
             <input type="text" 
                    name="{{ form.username.name }}" 
                    id="{{ form.username.id_for_label }}" 
