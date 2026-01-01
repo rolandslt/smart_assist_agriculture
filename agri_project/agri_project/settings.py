@@ -24,13 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-0#y10vn983cljzb75%6b-ez&r$avks^804wysjr*v2np6b0tk@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = []
 
 # Browser-Side Protections
-#SECURE_BROWSER_XSS_FILTER = True      # Tells browser to stop page loading if XSS is detected
-#SECURE_CONTENT_TYPE_NOSNIFF = True    # Prevents browser from "guessing" file types (MIME sniffing)
-#X_FRAME_OPTIONS = 'DENY'              # Prevents your site from being put in an <iframe> (Clickjacking)
+SECURE_BROWSER_XSS_FILTER = True      # Tells browser to stop page loading if XSS is detected
+SECURE_CONTENT_TYPE_NOSNIFF = True    # Prevents browser from "guessing" file types (MIME sniffing)
+X_FRAME_OPTIONS = 'DENY'              # Prevents your site from being put in an <iframe> (Clickjacking)
 
 # HTTPS-Only Cookies
 
@@ -48,7 +48,7 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
      # 4. Proxy Header (If using Nginx/Load Balancer)
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
