@@ -71,7 +71,11 @@ class FieldForm(forms.ModelForm):
                 'placeholder': 'e.g., Clay, Loam, Sandy'
             }),
         }
-    
+    def  __init__(self, *args, **kwargs):
+        self.farmer = kwargs.pop('farmer', None)
+        super().__init__(*args, **kwargs)
+        if self.farmer:
+            self.fields['fields'].queryset = Field.objects.filter(farmer=self.farmer)
 #-------------------
 # Create Crop
 #-------------------
@@ -147,7 +151,12 @@ class ActivityForm(forms.ModelForm):
                 'type': 'date'
             }),
         }
-
+    def  __init__(self, *args, **kwargs):
+        self.farmer = kwargs.pop('farmer', None)
+        super().__init__(*args, **kwargs)
+        if self.farmer:
+            self.fields['field'].queryset = Field.objects.filter(farmer=self.farmer)
+            self.fields['crop'].queryset = Crop.objects.filter(farmer=self.farmer)
     
 class WeatherRecordForm(forms.ModelForm):
     class Meta:

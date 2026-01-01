@@ -208,7 +208,7 @@ class CropCreateView(LoginRequiredMixin, CreateView):
 class CropUpdateView(LoginRequiredMixin, UpdateView):
     model = Crop
     template_name = 'crops/crop_form.html'
-    fields = ['fields', 'name', 'description', 'category','planted_on', 'expected_harvest','status']
+    form_class = CropForm
     success_url = reverse_lazy('crop_list')
     
     # Pass the current farmer to the form for queryset filtering (Step 2)
@@ -219,7 +219,7 @@ class CropUpdateView(LoginRequiredMixin, UpdateView):
     
     # Ensure user can only update their own crop
     def get_queryset(self):
-        return Field.objects.filter(fields__farmer=self.request.user)
+        return Crop.objects.filter(fields__farmer=self.request.user)
 
 class CropDeleteView(LoginRequiredMixin, DeleteView):
     model = Crop
@@ -278,6 +278,7 @@ class ActivityCreateView(LoginRequiredMixin, CreateView):
         form = super().get_form(form_class)
         # Filter the Field queryset to only include fields belonging to the current farmer
         form.fields['field'].queryset = Field.objects.filter(farmer=self.request.user)
+        form.fields['crop'].queryset = Crop.objects.filter(fields__farmer=self.request.user).distinct()
         return form
 
 
@@ -293,6 +294,7 @@ class ActivityUpdateView(LoginRequiredMixin, UpdateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields['field'].queryset = Field.objects.filter(farmer=self.request.user)
+        form.fields['crop'].queryset = Crop.objects.filter(fields__farmer=self.request.user).distinct()
         return form
     
 

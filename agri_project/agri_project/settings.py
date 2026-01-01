@@ -39,13 +39,13 @@ SESSION_COOKIE_SECURE = False
 
 
 # 1. Enforce HTTPS Redirect
-#SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = True
 
      # 2. HTTP Strict Transport Security (HSTS)
      # Start with a low value (3600) for testing, then increase to 31536000 (1 year)
-#SECURE_HSTS_SECONDS = 31536000 
-#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-#SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 31536000 
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
      # 4. Proxy Header (If using Nginx/Load Balancer)
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
