@@ -31,7 +31,27 @@ class FarmerViewSet(viewsets.ModelViewSet):
         if self.action in ['update', 'partial_update']:
             return FarmerUpdateSerializer
         return FarmerUpdateSerializer
+    
+    def get_permissions(self):
+        if self.action == 'create':
+            # This allows anyone to register without a token
+            permission_classes = [permissions.AllowAny]
+        else:
+            # This requires a token for GET, PUT, PATCH, DELETE
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes] 
+
+    def get_queryset(self):
+        # The user is identified by the Token in the header
+        user = self.request.user
+        
+        # If not logged in (e.g., during registration), return nothing
+        if not user.is_authenticated:
+            return Farmer.objects.none()
             
+        # Filter the Farmer table so only the logged-in user's data is returned
+        return Farmer.objects.filter(id=user.id)
+         
 class FieldViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['size_in_hectares', 'soil_type']
@@ -123,10 +143,13 @@ class ReviewSetView(viewsets.ModelViewSet):
     queryset = Review.objects.all().order_by('-created_at')[:5]
     serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        return SecureRoute.objects.filter(farmer=self.request.user)
 
     def perform_create(self, serializer):
         # Automatically set the 'farmer' to the logged-in user
-        serializer.save(farmer=self.user)
+        serializer.save(farmer=self.request.user)
 
 class PostViewSet(viewsets.ModelViewSet):
     # Fetch latest 10 posts and their comments in one efficient query
