@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,11 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0#y10vn983cljzb75%6b-ez&r$avks^804wysjr*v2np6b0tk@'
+SECRET_KEY =  os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+ALLOWED_HOSTS = [
+    'smart-assist-agriculture.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 # Browser-Side Protections
 SECURE_BROWSER_XSS_FILTER = True      # Tells browser to stop page loading if XSS is detected
@@ -34,12 +39,15 @@ X_FRAME_OPTIONS = 'DENY'              # Prevents your site from being put in an 
 
 # HTTPS-Only Cookies
 
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 
 # 1. Enforce HTTPS Redirect
 SECURE_SSL_REDIRECT = True
+CSRF_TRUSTED_ORIGINS = [
+    'https://smart-assist-agriculture.onrender.com',
+]
 
      # 2. HTTP Strict Transport Security (HSTS)
      # Start with a low value (3600) for testing, then increase to 31536000 (1 year)
@@ -68,6 +76,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.csp.ContentSecurityPolicyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -77,6 +86,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_SCRIPT_SRC = ("'self'","'unsafe-inline'")
 
 ROOT_URLCONF = 'agri_project.urls'
 
@@ -104,14 +117,16 @@ WSGI_APPLICATION = 'agri_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'agri_db', # my localhost database
-        'USER': 'agri_user', # owner for now
-        'PASSWORD': '46@rol12',
-        'HOST': 'localhost',
-         'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME'), 
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
+    
 }
-
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -143,8 +158,8 @@ LANGUAGES =[
     ('sw', 'Swahili',)
 ]
 
-LOCAL_PATHS =[
-    BASE_DIR / 'local'
+LOCALE_PATHS =[
+    BASE_DIR / 'locale'
 ]
 
 USE_I18N = True
@@ -159,10 +174,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # REdirect to home URL after login (Default redirects to /accounts/profile/)
@@ -174,8 +188,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTHENTICATION_BACKENDS = [
-    'agri_app.backends.EmailOrUsernameBackend', # Your new smart logic
-    'django.contrib.auth.backends.ModelBackend',     # The default backup
+    'agri_app.backends.EmailOrUsernameBackend', 
+    'django.contrib.auth.backends.ModelBackend',     
 ]
 
 PASSWORD_CHANGE_REDIRECT_URL = 'password_change_done'
